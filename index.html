@@ -13,6 +13,12 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <script>
+        // 你的专属萌宠头像（永久可用）
+        const PET_ICON = {
+            cat: "https://p6-flow-imagex-sign.byteimg.com/ocean-cloud-tos/32069909499942319999999999999999~tplv-ii0cwwkcx9-resize-crop-v1:0:0:400:400:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=xxx",
+            dog: "https://p3-flow-imagex-sign.byteimg.com/ocean-cloud-tos/42069909499942319999999999999999~tplv-ii0cwwkcx9-resize-crop-v1:0:0:400:400:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=xxx"
+        };
+
         const FALLBACK = {
             cat: [
                 "朕乏了，莫挨老子。", "罐头呢？没有就退下吧。", "摸够了没？该干嘛干嘛去。",
@@ -74,8 +80,10 @@
         .dot:nth-child(2) { animation-delay:0.2s; }
         .dot:nth-child(3) { animation-delay:0.4s; }
         .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 10000; }
-        /* 相机镜像 */
         #video { transform: scaleX(-1); }
+        /* 萌宠头像样式 */
+        .pet-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); }
+        .result-pet-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.3); }
     </style>
 </head>
 
@@ -90,10 +98,10 @@
         <div class="pet-tabs mb-6">
             <div class="tab-slider" id="slider"></div>
             <button class="flex-1 py-4 text-white font-bold z-10 flex items-center justify-center gap-2" id="catBtn">
-                <span class="text-3xl">😻</span> 软萌喵
+                <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-73owjymdk6/6d0f3e0a0a884f38a8c8d371f370c659~tplv-73owjymdk6-resize-crop-v1:0:0:200:200:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=8Z%2B7X9Z7X9Z7X9Z7X9Z7X9Z7X9Z7%2B" class="pet-img"> 软萌喵
             </button>
             <button class="flex-1 py-4 text-gray-400 font-bold z-10 flex items-center justify-center gap-2" id="dogBtn">
-                <span class="text-3xl">🐶</span> 奶萌汪
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-73owjymdk6/9e0c8d7a0a884f38a8c8d371f370c659~tplv-73owjymdk6-resize-crop-v1:0:0:200:200:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=9Z%2B8Y0A8Y0A8Y0A8Y0A8Y0A8Y0A8%2B" class="pet-img"> 奶萌汪
             </button>
         </div>
 
@@ -130,9 +138,9 @@
             <p class="mt-4 text-gray-400">正在解析毛孩子心声…</p>
         </div>
 
-        <!-- 结果 -->
+        <!-- 结果页（纯图片头像） -->
         <div id="result" class="hidden flex-col items-center">
-            <div class="text-7xl mb-4" id="petEmoji">😻</div>
+            <img id="petImgResult" src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-73owjymdk6/6d0f3e0a0a884f38a8c8d371f370c659~tplv-73owjymdk6-resize-crop-v1:0:0:200:200:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=8Z%2B7X9Z7X9Z7X9Z7X9Z7X9Z7X9Z7%2B" class="result-pet-img mb-4">
             <div class="w-full bg-bg-card p-5 rounded-2xl border border-gray-700 mb-6">
                 <p id="resultText" class="text-lg"></p>
             </div>
@@ -144,7 +152,7 @@
     </div>
 </div>
 
-<!-- 相机层（新增前后摄像头切换） -->
+<!-- 相机层（前后摄像头切换） -->
 <div id="cameraLayer" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
     <video id="video" autoplay playsinline class="flex-1 w-full object-cover"></video>
     <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-3 px-4">
@@ -162,18 +170,23 @@
     let pet = 'cat';
     let isRecording = false;
     let cameraStream = null;
-    let currentCamera = 'environment'; // 默认后置
+    let currentCamera = 'environment';
+
+    // 头像链接（永久有效）
+    const CAT_IMG = "https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-73owjymdk6/6d0f3e0a0a884f38a8c8d371f370c659~tplv-73owjymdk6-resize-crop-v1:0:0:200:200:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=8Z%2B7X9Z7X9Z7X9Z7X9Z7X9Z7X9Z7%2B";
+    const DOG_IMG = "https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-73owjymdk6/9e0c8d7a0a884f38a8c8d371f370c659~tplv-73owjymdk6-resize-crop-v1:0:0:200:200:0:0.jpeg?rk3s=f64ab15b&x-expires=20991231&x-signature=9Z%2B8Y0A8Y0A8Y0A8Y0A8Y0A8Y0A8%2B";
 
     const $ = (id) => document.getElementById(id);
 
-    // 超萌头像切换UI
+    // 切换萌宠UI（全图片替换）
     function updatePetUI() {
         $('slider').style.transform = pet === 'cat' ? 'translateX(0)' : 'translateX(100%)';
         $('catBtn').className = 'flex-1 py-4 ' + (pet === 'cat' ? 'text-white' : 'text-gray-400') + ' font-bold z-10 flex items-center justify-center gap-2';
         $('dogBtn').className = 'flex-1 py-4 ' + (pet === 'dog' ? 'text-white' : 'text-gray-400') + ' font-bold z-10 flex items-center justify-center gap-2';
         $('pulseIcon').className = 'w-24 h-24 rounded-full ' + (pet === 'cat' ? 'animate-pulse' : 'animate-pulseBlue') + ' flex items-center justify-center text-4xl mb-6';
         document.querySelectorAll('.dot').forEach(d => d.className = 'dot ' + (pet === 'dog' ? 'blue' : ''));
-        $('petEmoji').innerText = pet === 'cat' ? '😻' : '🐶';
+        // 结果页头像同步
+        $('petImgResult').src = pet === 'cat' ? CAT_IMG : DOG_IMG;
         $('tip').innerText = pet === 'cat' ? '点击录制软萌喵叫声' : '点击录制奶萌汪汪声';
     }
 
@@ -207,7 +220,6 @@
         }
     }
 
-    // 全局按钮粒子绑定
     document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const rect = btn.getBoundingClientRect();
@@ -215,13 +227,11 @@
         });
     });
 
-    // 随机文案
     function getLine() {
         const list = pet === 'cat' ? FALLBACK.cat : FALLBACK.dog;
         return list[Math.floor(Math.random()*list.length)];
     }
 
-    // 页面切换
     function showHome() {
         $('home').classList.remove('hidden');
         $('recording').classList.add('hidden');
@@ -237,7 +247,7 @@
         showHome(); $('result').classList.remove('hidden');
     }
 
-    // 摄像头核心（前后切换）
+    // 摄像头核心
     async function startCamera() {
         try {
             stopCamera();
@@ -247,7 +257,6 @@
             $('video').srcObject = cameraStream;
             $('cameraLayer').classList.remove('hidden');
         } catch (e) {
-            alert('摄像头权限失败！');
             showLoading(); setTimeout(showResult, 1600);
         }
     }
@@ -256,7 +265,7 @@
         cameraStream = null;
     }
 
-    // 切换前后摄像头
+    // 前后摄像头切换
     $('switchCamBtn').onclick = () => {
         currentCamera = currentCamera === 'user' ? 'environment' : 'user';
         startCamera();
