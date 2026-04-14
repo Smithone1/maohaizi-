@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="format-detection" content="telephone=no,email=no,address=no">
+    <meta property="og:title" content="毛孩子心事档案馆">
+    <meta property="og:description" content="手机微信可直接打开的 H5 版本">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="cat-icon.png">
+    <link rel="icon" type="image/png" href="cat-icon.png">
+    <title>🐾 毛孩子心事档案馆 🐾</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <script>
+
+        // 🔥 硬核配置
+        const SYSTEM_CONFIG = {
+            url: 'https://api.deepseek.com/v1/chat/completions',
+            model: 'deepseek-chat',
+            audioUrl: 'https://api.deepseek.com/v1/audio/transcriptions',
+            audioModel: 'whisper-1'
+        };
+
+        // 🔥 灵魂 Prompt
+        const PROMPTS = {
+            cat: `你是一只极其叛逆的中华田园猫，体重10斤，反骨9斤半。你的名字叫"主子"。要求：用第一人称"朕"或"爷"，口语化，阴阳怪气。不要解释，直接给台词！`,
+            dog: `你是一只见多识广的职场老油条狗，工号007。任务：把这段"狗叫声"翻译成打工人的内心独白。要求：必须包含以下关键词至少2个：加班、KPI、画饼、裁员、optimize、福报、收到、格局、躺平、跳槽。不要解释，直接给内心独白！`
+        };
+
+        // 🔥 本地兜底文案
+        const FALLBACK = {
+            cat: [
+                "瞅你咋地？还不去给朕开罐罐？",
+                "铲屎的，你这脚步声吵到朕的眼睛了，叉出去！",
+                "罐门永存！今天吃不到进口罐你就别想睡了。"
+            ],
+            dog: [
+                "汪！刚才老板又在画饼了，说今年好好干，明年就能给我换个新狗盆。",
+                "汪汪汪！听这意思，KPI又要翻倍了， optimize 一下，岂不是要优化我？",
+                "收到收到！（内心：钱少事多离家远，这班真是一天也不想上了）"
+            ]
+        };
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'mood-pink': '#FF6B9D',
+                        'mood-purple': '#C44AFF',
+                        'mood-blue': '#4A9FFF',
+                        'bg-dark': '#1a1a2e',
+                        'bg-card': '#16213e',
+                    },
+                    keyframes: {
+                        'wave': { '0%, 100%': { transform: 'scaleY(0.5)' }, '50%': { transform: 'scaleY(1)' } },
+                        'glow': { '0%, 100%': { boxShadow: '0 0 20px rgba(255, 107, 157, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(255, 107, 157, 0.8)' } },
+                        'glow-blue': { '0%, 100%': { boxShadow: '0 0 20px rgba(74, 159, 255, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(74, 159, 255, 0.8)' } },
+                        'fade-in': { 'from': { opacity: '0', transform: 'translateY(10px)' }, 'to': { opacity: '1', transform: 'translateY(0)' } }
+                    },
+                    animation: {
+                        'wave': 'wave 1s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite',
+                        'glow-blue': 'glow-blue 2s ease-in-out infinite',
+                        'fade-in': 'fade-in 0.3s ease-out'
+                    }
+                }
+            }
+        }
+    
+</script>
+    
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            background-color: #1a1a2e; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-bg { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        /* 🔥 超紧凑粒子特效 */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 10000;
+            opacity: 1;
+            will-change: transform, opacity;
+        }
+        
+        /* 滑动背景 */
+        .tab-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 6px);
+            height: calc(100% - 8px);
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 1;
+            background: rgba(255, 107, 157, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        
+        .pet-tabs-container {
+            position: relative;
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 14px;
+            margin-bottom: 2rem;
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            animation: fade-in 0.2s ease-out;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 95%;
+            max-height: 95%;
+            overflow: auto;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        #cameraPreview {
+            transform: scaleX(-1);
+        }
+        
+        .bar { 
+            transition: height 0.2s; 
+        }
+
+        #wechatOpenTip {
+            display: none;
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            z-index: 30000;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #f5f5f5;
+        }
+
+        @media (max-width: 640px) {
+            #particles-container, .particle {
+                display: none !important;
+            }
+            h1 {
+                font-size: 1.8rem !important;
+            }
+            .glass-bg {
+                backdrop-filter: blur(6px);
+            }
+        }
+    
+</style>
+</head>
+<body class="min-h-screen text-gray-100 overflow-x-hidden relative flex flex-col items-center justify-center p-4">
+    <!-- 粒子容器 -->
+    <div id="particles-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+    <div id="wechatOpenTip"></div>
+
+    <!-- 背景星云 -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-mood-pink/20 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-lg">
+        <!-- 标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-black mb-2 bg-gradient-to-r from-mood-pink via-mood-purple to-mood-blue bg-clip-text text-transparent">
+                🐾 毛孩子心事档案馆 🐾
+            </h1>
+            <p class="text-gray-400 text-sm">别说话，听它吐槽你...</p>
+        </div>
+
+        <!-- 主卡片 -->
+        <div class="glass-bg rounded-3xl shadow-2xl p-6 md:p-8 relative">
+            <!-- API Key -->
+            <div class="mb-6">
+                <label class="block text-xs text-gray-400 mb-2 font-medium uppercase tracking-wider">DeepSeek API Key</label>
+                <div class="relative group">
+                    <input type="password" id="apiKeyInput" placeholder="sk-..." class="w-full bg-bg-card/50 border border-gray-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-mood-pink transition-all">
+                    <button id="toggleKey" class="absolute right-3 top-3.5 text-gray-500 hover:text-white"><i class="fa fa-eye"></i></button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 text-right"><i class="fa fa-lock"></i>  key仅本地使用</p>
+            </div>
+
+            <!-- 物种选择器 -->
+            <div class="pet-tabs-container">
+                <div id="tabSlider" class="tab-slider"></div>
+                <button id="catBtn" class="flex-1 py-4 rounded-xl text-white font-bold transition-all duration-150 active:scale-95 flex items-center justify-center gap-2 relative z-10">
+                    <span class="text-2xl">🐱</span> 猫主子
+                </button>
+                <button id="dogBtn" class="flex-1 py-4 rounded-xl text-gray-400 font-bold transition-all duration-150 active:scale-95 flex items-center justify-center gap-2 relative z-10">
+                    <span class="text-2xl">🐶</span> 打工狗
+                </button>
+            </div>
+
+            <!-- 内容区 -->
+            <div id="app">
+                <!-- 待命 -->
+                <div id="idleView" class="flex flex-col items-center">
+                    <button id="mainActionBtn" class="w-32 h-32 rounded-full bg-gradient-to-br from-mood-pink to-mood-purple flex items-center justify-center text-5xl text-white shadow-[0_0_40px_rgba(255,107,157,0.6)] transition-all duration-200 active:scale-90 mb-6 animate-glow cursor-pointer mx-auto">
+                        <i class="fa fa-microphone"></i>
+                    </button>
+                    <p class="text-gray-300 font-medium text-lg mb-4" id="actionHint">录下猫主子的圣旨...</p>
+
+                    <!-- 拍照和上传按钮行 -->
+                    <div class="flex gap-4 w-full mb-4">
+                        <button id="takePhotoBtn" class="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 rounded-xl text-white font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+                            <i class="fa fa-camera"></i> 拍照识别
+                        </button>
+                        <label class="flex-1 cursor-pointer">
+                            <div class="py-3 bg-gradient-to-r from-purple-500 to-pink-400 hover:from-purple-600 hover:to-pink-500 rounded-xl text-white font-bold flex items-center justify-center gap-2 transition-all active:scale-95">
+                                <i class="fa fa-upload"></i> 上传文件
+                            </div>
+                            <input type="file" accept="audio/*,video/*,image/*" class="hidden" id="fileUpload">
+                        </label>
+                    </div>
+
+                    <div class="w-full text-center">
+                        <p class="text-xs text-gray-500">支持：录音、拍照、上传音频/视频/图片</p>
+                        <label class="mt-2 inline-flex items-center gap-2 text-xs text-gray-400 select-none cursor-pointer">
+                            <input id="advancedVisionToggle" type="checkbox" class="accent-mood-blue">
+                            高级分析（含视频画面识别，可能更慢）
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 翻译中 -->
+                <div id="loadingView" class="hidden flex-col items-center py-4">
+                    <div class="text-6xl mb-6 animate-bounce" id="loadingEmoji">🐱</div>
+                    <div class="flex items-end gap-1 h-12 mb-6" id="waveContainer">
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 20%; animation-delay: 0.0s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 80%; animation-delay: 0.1s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 40%; animation-delay: 0.2s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 90%; animation-delay: 0.3s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 30%; animation-delay: 0.4s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 70%; animation-delay: 0.5s"></div>
+                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 50%; animation-delay: 0.6s"></div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1" id="loadingTitle">正在严刑逼供中...</h3>
+                    <p class="text-sm text-gray-400" id="loadingSubtext">获取毛孩子的思想钢印</p>
+                </div>
+
+                <!-- 结果 -->
+                <div id="resultView" class="hidden flex-col items-center">
+                    <div class="text-7xl mb-4" id="resultEmoji">🐱</div>
+                    <div class="w-full bg-bg-card/80 rounded-2xl p-5 border border-gray-700 mb-6 relative overflow-hidden" id="resultCard">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mood-pink to-mood-blue" id="resultLine"></div>
+                        <p class="text-gray-100 text-lg leading-relaxed font-medium" id="resultText"></p>
+                    </div>
+                    <button id="retryBtn" class="w-full py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa fa-refresh"></i> 再听一句八卦
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 相机模态框 -->
+    <div id="cameraModal" class="modal-overlay hidden">
+        <div class="modal-content w-96">
+            <div class="text-center mb-4">
+                <h3 class="text-xl font-bold text-white">📸 拍照识别</h3>
+                <p class="text-gray-400 text-sm">对准你的毛孩子拍一张</p>
+            </div>
+            
+            <div class="mb-4">
+                <video id="cameraPreview" autoplay playsinline class="w-full h-64 bg-black rounded-lg mb-2"></video>
+                <canvas id="photoCanvas" class="hidden"></canvas>
+            </div>
+            
+            <div class="flex gap-2">
+                <button id="captureBtn" class="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 rounded-xl text-white font-bold transition-all active:scale-95">
+                    <i class="fa fa-camera"></i> 拍照
+                </button>
+                <button id="switchCameraBtn" class="px-4 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 rounded-xl text-white font-bold transition-all active:scale-95">
+                    <i class="fa fa-refresh"></i>
+                </button>
+                <button id="closeCameraBtn" class="px-4 py-3 bg-gradient-to-r from-red-500 to-pink-400 hover:from-red-600 hover:to-pink-500 rounded-xl text-white font-bold transition-all active:scale-95">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 粒子特效：点击按钮触发 ==========
+        function createParticleExplosion(x, y, isCat) {
+            const container = document.getElementById('particles-container');
+            if (!container) return;
+
+            const colors = isCat
+                ? ['#FF6B9D', '#FF8EAD', '#FFB3C6', '#FF6B6B', '#FF8A65'] // 粉色/橙色系
+                : ['#4A9FFF', '#6BB5FF', '#8DC8FF', '#4A6FFF', '#6B8FFF']; // 蓝色系
+
+            const particleCount = 16;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = Math.random() * 7 + 3; // 3-10px
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.backgroundColor = color;
+                particle.style.boxShadow = `0 0 12px ${color}`;
+
+                // 起点抖动（小一点）
+                const offsetX = (Math.random() - 0.5) * 16;
+                const offsetY = (Math.random() - 0.5) * 16;
+
+                particle.style.left = `${x + offsetX}px`;
+                particle.style.top = `${y + offsetY}px`;
+
+                container.appendChild(particle);
+
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3.4 + 2.2; // 2.2-5.6（距离更近）
+
+                let vx = Math.cos(angle) * speed;
+                let vy = Math.sin(angle) * speed;
+
+                // 不要下落：取消重力，只做散开 + 轻微阻尼
+                const friction = 0.985; // 更快“刹车”，飞不远
+
+                const lifeMs = 260 + Math.random() * 150; // 更快消失
+                const start = performance.now();
+
+                let px = 0;
+                let py = 0;
+
+                function tick(now) {
+                    const t = now - start;
+                    const p = Math.min(1, t / lifeMs);
+
+                    vx *= friction;
+                    vy *= friction;
+
+                    px += vx;
+                    py += vy;
+
+                    particle.style.transform = `translate(${px}px, ${py}px)`;
+                    particle.style.opacity = `${1 - p}`;
+
+                    if (p < 1) requestAnimationFrame(tick);
+                    else particle.remove();
+                }
+
+                requestAnimationFrame(tick);
+            }
+        }
+
+        // ========== 物种状态（用于粒子配色）==========
+        let currentPet = 'cat';
+
+        function setActivePet(pet) {
+            currentPet = pet;
+
+            const catBtn = document.getElementById('catBtn');
+            const dogBtn = document.getElementById('dogBtn');
+            const tabSlider = document.getElementById('tabSlider');
+            if (!catBtn || !dogBtn || !tabSlider) return;
+
+            const isCat = pet === 'cat';
+
+            tabSlider.style.transform = isCat ? 'translateX(0)' : 'translateX(100%)';
+            tabSlider.style.background = isCat ? 'rgba(255, 107, 157, 0.15)' : 'rgba(74, 159, 255, 0.15)';
+
+            catBtn.classList.toggle('text-white', isCat);
+            catBtn.classList.toggle('text-gray-400', !isCat);
+            dogBtn.classList.toggle('text-white', !isCat);
+            dogBtn.classList.toggle('text-gray-400', isCat);
+
+            const loadingEmoji = document.getElementById('loadingEmoji');
+            const resultEmoji = document.getElementById('resultEmoji');
+            const actionHint = document.getElementById('actionHint');
+            if (loadingEmoji) loadingEmoji.textContent = isCat ? '🐱' : '🐶';
+            if (resultEmoji) resultEmoji.textContent = isCat ? '🐱' : '🐶';
+            if (actionHint) actionHint.textContent = isCat ? '录下猫主子的圣旨...' : '录下打工狗的汪汪...';
+        }
+
+        // ========== 事件委托：任何 button 点击都有粒子 ==========
+        function bindButtonParticles() {
+            document.addEventListener(
+                'click',
+                (e) => {
+                    const btn = e.target?.closest?.('button');
+                    if (!btn) return;
+                    if (btn.disabled) return;
+
+                    const rect = btn.getBoundingClientRect();
+                    if (rect.width === 0 || rect.height === 0) return;
+
+                    const x = typeof e.clientX === 'number' ? e.clientX : rect.left + rect.width / 2;
+                    const y = typeof e.clientY === 'number' ? e.clientY : rect.top + rect.height / 2;
+
+                    createParticleExplosion(x, y, currentPet === 'cat');
+                },
+                { capture: true }
+            );
+        }
+
+        // ========== 小功能：显示/隐藏 Key ==========
+        function bindToggleKey() {
+            const apiKeyInput = document.getElementById('apiKeyInput');
+            const toggleKey = document.getElementById('toggleKey');
+            if (!apiKeyInput || !toggleKey) return;
+
+            toggleKey.addEventListener('click', (e) => {
+                e.preventDefault();
+                apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+                const icon = toggleKey.querySelector('i');
+                if (icon) icon.className = apiKeyInput.type === 'password' ? 'fa fa-eye' : 'fa fa-eye-slash';
+            });
+        }
+
+        // ========== 轻量“离线可玩”逻辑：避免上传卡死 ==========
+        function setView(view) {
+            const idleView = document.getElementById('idleView');
+            const loadingView = document.getElementById('loadingView');
+            const resultView = document.getElementById('resultView');
+
+            if (!idleView || !loadingView || !resultView) return;
+
+            idleView.classList.toggle('hidden', view !== 'idle');
+            loadingView.classList.toggle('hidden', view !== 'loading');
+            resultView.classList.toggle('hidden', view !== 'result');
+        }
+
+        function setResultText(text) {
+            const resultText = document.getElementById('resultText');
+            if (resultText) resultText.textContent = text;
+        }
+
+        function pickFallback(pet) {
+            const list = FALLBACK?.[pet] || FALLBACK?.cat || ['...'];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function getApiKey() {
+            const key = document.getElementById('apiKeyInput')?.value?.trim() || '';
+            return key;
+        }
+
+        function isAdvancedVisionEnabled() {
+            return Boolean(document.getElementById('advancedVisionToggle')?.checked);
+        }
+
+        function updateLoadingText(title, subtext, emoji) {
+            const loadingTitle = document.getElementById('loadingTitle');
+            const loadingSubtext = document.getElementById('loadingSubtext');
+            const loadingEmoji = document.getElementById('loadingEmoji');
+            if (loadingTitle) loadingTitle.textContent = title;
+            if (loadingSubtext) loadingSubtext.textContent = subtext;
+            if (loadingEmoji && emoji) loadingEmoji.textContent = emoji;
+        }
+
+        async function withTimeout(promiseFactory, ms, label) {
+            let timer = null;
+            try {
+                return await Promise.race([
+                    promiseFactory(),
+                    new Promise((_, reject) => {
+                        timer = setTimeout(() => reject(new Error(`${label}超时（>${Math.round(ms / 1000)}s）`)), ms);
+                    })
+                ]);
+            } finally {
+                if (timer) clearTimeout(timer);
+            }
+        }
+
+        async function fetchWithTimeout(url, options, timeoutMs = 20000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal });
+            } catch (err) {
+                if (err?.name === 'AbortError') throw new Error(`网络请求超时（>${Math.round(timeoutMs / 1000)}s）`);
+                throw err;
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        async function transcribeMedia(file, apiKey) {
+            if (!apiKey) return '';
+            if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) return '';
+
+            const formData = new FormData();
+            formData.append('file', file, file.name || 'upload.bin');
+            formData.append('model', SYSTEM_CONFIG.audioModel);
+
+            const resp = await fetchWithTimeout(SYSTEM_CONFIG.audioUrl, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${apiKey}`
+                },
+                body: formData
+            }, 25000);
+
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(`转写失败：${resp.status} ${errText || ''}`.trim());
+            }
+
+            const data = await resp.json();
+            return data?.text?.trim() || '';
+        }
+
+        async function fileToDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ''));
+                reader.onerror = () => reject(new Error('读取文件失败'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function extractVideoFrames(file, count = 3) {
+            if (!file.type.startsWith('video/')) return [];
+
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.muted = true;
+            video.playsInline = true;
+
+            const objectUrl = URL.createObjectURL(file);
+            video.src = objectUrl;
+
+            try {
+                await withTimeout(
+                    () =>
+                        new Promise((resolve, reject) => {
+                            const onMeta = () => resolve();
+                            const onError = () => reject(new Error('视频元数据读取失败'));
+                            video.addEventListener('loadedmetadata', onMeta, { once: true });
+                            video.addEventListener('error', onError, { once: true });
+                        }),
+                    6000,
+                    '视频元数据读取'
+                );
+
+                const duration = Number(video.duration) || 0;
+                if (!duration || !isFinite(duration)) return [];
+
+                const points = [0.15, 0.5, 0.85]
+                    .slice(0, count)
+                    .map((p) => Math.max(0, Math.min(duration - 0.05, duration * p)));
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return [];
+
+                const maxW = 448;
+                const scale = Math.min(1, maxW / (video.videoWidth || maxW));
+                canvas.width = Math.max(1, Math.round((video.videoWidth || maxW) * scale));
+                canvas.height = Math.max(1, Math.round((video.videoHeight || maxW) * scale));
+
+                const frames = [];
+
+                for (const t of points) {
+                    await withTimeout(
+                        () =>
+                            new Promise((resolve, reject) => {
+                                const onSeeked = () => resolve();
+                                const onError = () => reject(new Error('视频抽帧失败'));
+                                video.addEventListener('seeked', onSeeked, { once: true });
+                                video.addEventListener('error', onError, { once: true });
+                                video.currentTime = t;
+                            }),
+                        3500,
+                        '关键帧抽取'
+                    );
+
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    frames.push(canvas.toDataURL('image/jpeg', 0.72));
+                }
+
+                return frames;
+            } finally {
+                URL.revokeObjectURL(objectUrl);
+            }
+        }
+
+        async function describeImageOrVideo(file, frames, apiKey) {
+            if (!apiKey) return '';
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            if (!isImage && !isVideo) return '';
+
+            const content = [
+                {
+                    type: 'text',
+                    text: isImage
+                        ? '请简要描述这张图片中宠物的动作、情绪和场景。用中文，50字内。'
+                        : '这些是同一段视频的关键帧。请概括宠物在做什么、情绪如何、环境如何。用中文，80字内。'
+                }
+            ];
+
+            if (isImage) {
+                const imageDataUrl = await fileToDataUrl(file);
+                content.push({ type: 'image_url', image_url: { url: imageDataUrl } });
+            } else {
+                frames.forEach((frame) => content.push({ type: 'image_url', image_url: { url: frame } }));
+            }
+
+            const resp = await fetchWithTimeout(SYSTEM_CONFIG.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: SYSTEM_CONFIG.model,
+                    messages: [{ role: 'user', content }],
+                    temperature: 0.4
+                })
+            }, 20000);
+
+            if (!resp.ok) return '';
+            const data = await resp.json();
+            return data?.choices?.[0]?.message?.content?.trim() || '';
+        }
+
+        async function roastByContext({ transcript, visualDesc, file, apiKey, pet }) {
+            if (!apiKey) return '';
+
+            const prompt = [
+                PROMPTS[pet] || PROMPTS.cat,
+                '',
+                `输入文件类型：${file.type || 'unknown'}`,
+                transcript ? `语音转写：${transcript}` : '语音转写：<无或失败>',
+                visualDesc ? `画面描述：${visualDesc}` : '画面描述：<无或失败>',
+                '',
+                '请只输出最终吐槽台词，不要解释。'
+            ].join('\n');
+
+            const resp = await fetchWithTimeout(SYSTEM_CONFIG.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: SYSTEM_CONFIG.model,
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.9
+                })
+            }, 20000);
+
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(`AI生成失败：${resp.status} ${errText || ''}`.trim());
+            }
+
+            const data = await resp.json();
+            return data?.choices?.[0]?.message?.content?.trim() || '';
+        }
+
+        function bindRetry() {
+            const retryBtn = document.getElementById('retryBtn');
+            if (!retryBtn) return;
+            retryBtn.addEventListener('click', () => {
+                setView('result');
+                setResultText(pickFallback(currentPet));
+            });
+        }
+
+        function bindMainAction() {
+            const mainBtn = document.getElementById('mainActionBtn');
+            if (!mainBtn) return;
+            mainBtn.addEventListener('click', () => {
+                setView('loading');
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(pickFallback(currentPet));
+                }, 350);
+            });
+        }
+
+        function bindFileUpload() {
+            const input = document.getElementById('fileUpload');
+            if (!input) return;
+
+            input.addEventListener('change', async () => {
+                const file = input.files?.[0];
+                // 允许重复选择同一个文件也能触发
+                input.value = '';
+                if (!file) return;
+
+                setView('loading');
+                updateLoadingText('正在拆解文件...', '抽取语音与画面信息', currentPet === 'cat' ? '🐱' : '🐶');
+
+                const apiKey = getApiKey();
+                const type = file.type || 'unknown';
+                const sizeMB = file.size / (1024 * 1024);
+                const advancedVision = isAdvancedVisionEnabled();
+
+                try {
+                    // 防止浏览器内存爆：超大文件直接提示
+                    if (sizeMB > 80) throw new Error('文件太大（>80MB），建议先压缩后再传');
+
+                    let transcript = '';
+                    let frames = [];
+                    let visualDesc = '';
+
+                    if (type.startsWith('audio/') || type.startsWith('video/')) {
+                        updateLoadingText('正在转写语音...', '这一步可能需要几秒', currentPet === 'cat' ? '🐱' : '🐶');
+                        try {
+                            transcript = await withTimeout(() => transcribeMedia(file, apiKey), 28000, '语音转写');
+                        } catch {
+                            transcript = '';
+                        }
+                    }
+
+                    if (type.startsWith('video/')) {
+                        if (advancedVision) {
+                            updateLoadingText('正在分析视频画面...', '抽取关键帧并识别场景', currentPet === 'cat' ? '🐱' : '🐶');
+                            try {
+                                frames = await withTimeout(() => extractVideoFrames(file, 3), 12000, '视频抽帧');
+                            } catch {
+                                frames = [];
+                            }
+                        } else {
+                            frames = [];
+                        }
+                    }
+
+                    if (type.startsWith('image/') || type.startsWith('video/')) {
+                        const shouldRunVision = type.startsWith('image/') || (type.startsWith('video/') && advancedVision);
+                        if (shouldRunVision) {
+                            updateLoadingText('正在理解画面内容...', '读取宠物动作和情绪', currentPet === 'cat' ? '🐱' : '🐶');
+                            try {
+                                visualDesc = await withTimeout(() => describeImageOrVideo(file, frames, apiKey), 16000, '画面识别');
+                            } catch {
+                                visualDesc = '';
+                            }
+                        } else {
+                            visualDesc = '';
+                        }
+                    }
+
+                    updateLoadingText('正在生成吐槽文案...', '把识别结果交给 AI', currentPet === 'cat' ? '🐱' : '🐶');
+                    const finalText = await roastByContext({ transcript, visualDesc, file, apiKey, pet: currentPet });
+
+                    if (!finalText) throw new Error('没有拿到有效输出');
+
+                    setView('result');
+                    setResultText(finalText);
+                } catch (err) {
+                    // 任意步骤失败 -> 优雅降级，不让用户“卡住”
+                    const msg = err?.message ? String(err.message) : '处理失败';
+                    setView('result');
+                    setResultText(
+                        `文件：${type}（${sizeMB.toFixed(1)}MB）\n${msg}\n\n已切换离线兜底：\n${pickFallback(currentPet)}`
+                    );
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const ua = navigator.userAgent || '';
+            const isWeChat = /MicroMessenger/i.test(ua);
+            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+            const tip = document.getElementById('wechatOpenTip');
+
+            if (isMobile && tip) {
+                tip.style.display = 'block';
+                if (!isSecure) {
+                    tip.textContent = '当前不是 HTTPS，微信里麦克风/相机会被限制。请上传到 HTTPS 链接后再转发。';
+                } else if (isWeChat) {
+                    tip.textContent = '微信内已优化显示。若录音失败，请点右上角“在浏览器打开”。';
+                } else {
+                    tip.textContent = '手机版已优化。建议通过 HTTPS 链接分享，别人点开即用。';
+                }
+            }
+
+            document.getElementById('catBtn')?.addEventListener('click', () => setActivePet('cat'));
+            document.getElementById('dogBtn')?.addEventListener('click', () => setActivePet('dog'));
+
+            setActivePet('cat');
+            if (!isMobile) {
+                bindButtonParticles();
+            }
+            bindToggleKey();
+            bindRetry();
+            bindMainAction();
+            bindFileUpload();
+            setView('idle');
+        });
+    </script>
+</body>
+</html>
