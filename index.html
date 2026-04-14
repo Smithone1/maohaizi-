@@ -9,43 +9,68 @@
     <meta property="og:title" content="🐾 毛孩子心事档案馆">
     <meta property="og:description" content="一键听懂毛孩子心声">
     <meta property="og:type" content="website">
+    <meta property="og:image" content="./cat-icon.png">
     <title>🐾 毛孩子心事档案馆</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        // 纯原生图标（零加载、零裂图、永久稳定）
-        const PET_ICON = { cat: "😻", dog: "🐕" };
+        // 本地图片路径（你把两张图上传到仓库同目录即可）
+        const CAT_IMG = "./cat-icon.png";
+        const DOG_IMG = "./dog-icon.png";
+        
         // 文案库
         const FALLBACK = {
             cat: ["朕乏了，莫挨老子。", "罐头呢？没有就退下吧。", "摸够了没？该干嘛干嘛去。", "这地盘是朕的，你只是暂住。", "敢动朕的窝？挠你没商量。", "喂饭都不准时，要你何用。", "别拍了，朕不想营业。", "抱我？看朕心情再说。", "零食拿来，朕就原谅你。", "吵到朕睡觉，罚你今晚铲屎。", "人类真无聊，还是睡觉舒服。", "这破地方，也就朕能将就。", "想撸我？先去把罐罐开了。", "朕允许你摸三下，多一下不行。", "哼，区区人类也敢指挥朕？"],
-            dog: ["别叫，起不来，根本起不来。", "出门？算了吧，外面好累。", "干啥都没劲，只想趴着。", "吃饭可以，出门免谈。", "别拉我，我和地板锁死了。", "能躺绝不坐，能睡绝不醒。", "不想动，一动就累。", "摆烂中，请勿打扰。", "遛弯？下次一定，下次一定。", "四肢健全，不想动。", "人生苦短，不如躺平。", "叫我也没用，耳朵自动屏蔽。", "零食到嘴边，我再考虑起身。", "佛系小狗，万事随缘。", "今天运动量：眨了眨眼。"]
+            dog: ["别叫，起不来，根本起不来。", "出门？算了吧，外面好累。", "干啥都没劲，只想趴着。", "吃饭可以，出门免谈。", "别拉我，我和地板锁死了。", "能躺绝不坐，能睡绝不醒。", "不想动，一动就累。", "摆烂中，请勿打扰。", "遛弯？下次一定，下次一定。", "四肢健全，就是不想动。", "人生苦短，不如躺平。", "叫我也没用，耳朵自动屏蔽。", "零食到嘴边，我再考虑起身。", "佛系小狗，万事随缘。", "今天运动量：眨了眨眼。"]
         };
+
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {'mood-pink':'#FF6B9D','mood-blue':'#4A9FFF','bg-dark':'#1a1a2e','bg-card':'#16213e'},
-                    keyframes: {
-                        wave: {'0%,100%':{transform:'scaleY(0.5)'},'50%':{transform:'scaleY(1)'}},
-                        pulse: {'0%':{transform:'scale(1)'},'50%':{transform:'scale(1.05)'},'100%':{transform:'scale(1)'}}
+                    colors: {
+                        'mood-pink': '#FF6B9D',
+                        'mood-blue': '#4A9FFF',
+                        'bg-dark': '#1a1a2e',
+                        'bg-card': '#16213e',
                     },
-                    animation: {wave:'wave 0.8s infinite',pulse:'pulse 1.5s infinite'}
+                    keyframes: {
+                        wave: {
+                            '0%, 100%': { transform: 'scaleY(0.5)' },
+                            '50%': { transform: 'scaleY(1)' }
+                        },
+                        pulse: {
+                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,107,157,0.7)' },
+                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(255,107,157,0)' },
+                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,107,157,0)' }
+                        },
+                        pulseBlue: {
+                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74,159,255,0.7)' },
+                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(74,159,255,0)' },
+                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74,159,255,0)' }
+                        }
+                    },
+                    animation: {
+                        wave: 'wave 0.8s infinite ease-in-out',
+                        pulse: 'pulse 1.5s infinite',
+                        pulseBlue: 'pulseBlue 1.5s infinite'
+                    }
                 }
             }
         }
     </script>
     <style>
-        body{background:#1a1a2e;font-family:system-ui,sans-serif;margin:0;padding:0;}
-        .glass-bg{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}
-        .tab-slider{position:absolute;top:4px;left:4px;width:calc(50% - 6px);height:calc(100% - 8px);border-radius:10px;background:rgba(255,107,157,0.15);transition:.3s}
-        .pet-tabs{position:relative;display:flex;padding:4px;border-radius:14px;background:rgba(255,255,255,0.03)}
-        .dot{width:8px;height:8px;border-radius:50%;background:#FF6B9D;animation:wave 0.8s infinite}
-        .dot.blue{background:#4A9FFF}
-        .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
-        .particle{position:fixed;pointer-events:none;border-radius:50%;z-index:10000}
-        #video{transform:scaleX(-1)}
-        /* 图标样式（和图片一模一样的圆角质感） */
-        .pet-icon{font-size:40px;line-height:1;border-radius:50%;padding:4px;border:2px solid rgba(255,255,255,0.2)}
-        .result-icon{font-size:70px;line-height:1;border-radius:50%;padding:6px;border:3px solid rgba(255,255,255,0.3)}
+        body { background: #1a1a2e; font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+        .glass-bg { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 6px); height: calc(100% - 8px); border-radius: 10px; background: rgba(255,107,157,0.15); transition: 0.3s; }
+        .pet-tabs { position: relative; display: flex; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.03); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #FF6B9D; animation: wave 0.8s infinite; }
+        .dot.blue { background: #4A9FFF; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 10000; }
+        #video { transform: scaleX(-1); }
+        .pet-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); }
+        .result-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.3); }
     </style>
 </head>
 <body class="text-white flex flex-col items-center justify-center p-4 min-h-screen">
@@ -54,22 +79,22 @@
         <h1 class="text-4xl font-bold bg-gradient-to-r from-mood-pink to-mood-blue bg-clip-text text-transparent">🐾 毛孩子心事档案馆</h1>
     </div>
     <div class="glass-bg rounded-3xl p-6">
-        <!-- 宠物切换（零图片，百分百显示） -->
+        <!-- 宠物切换 -->
         <div class="pet-tabs mb-6">
             <div id="slider" class="tab-slider"></div>
             <button id="catBtn" class="flex-1 py-4 text-white font-bold z-10 flex items-center justify-center gap-2">
-                <span class="pet-icon">😻</span> 软萌喵
+                <img src="./cat-icon.png" class="pet-avatar" alt="猫"> 软萌喵
             </button>
             <button id="dogBtn" class="flex-1 py-4 text-gray-400 font-bold z-10 flex items-center justify-center gap-2">
-                <span class="pet-icon">🐕</span> 奶萌汪
+                <img src="./dog-icon.png" class="pet-avatar" alt="狗"> 奶萌汪
             </button>
         </div>
         <!-- 主页 -->
         <div id="home" class="flex flex-col items-center">
-            <button id="recordBtn" class="w-32 h-32 rounded-full bg-gradient-to-br from-mood-pink to-mood-purple flex items-center justify-center text-5xl shadow-lg animate-pulse">
+            <button id="recordBtn" class="w-32 h-32 rounded-full bg-gradient-to-br from-mood-pink to-mood-purple flex items-center justify-center text-5xl shadow-lg">
                 <i class="fa fa-microphone"></i>
             </button>
-            <p class="my-4 text-gray-300">点击录制毛孩子声音</p>
+            <p class="my-4 text-gray-300" id="tip">点击录制毛孩子声音</p>
             <div class="flex gap-3 w-full">
                 <button id="cameraBtn" class="flex-1 py-3 bg-green-500 rounded-xl font-bold">📸 拍照识别</button>
                 <button id="fileBtn" class="flex-1 py-3 bg-purple-500 rounded-xl font-bold">📁 上传文件</button>
@@ -77,7 +102,7 @@
         </div>
         <!-- 录音中 -->
         <div id="recording" class="hidden flex-col items-center py-6">
-            <div class="w-24 h-24 rounded-full animate-pulse flex items-center justify-center text-4xl mb-6 bg-mood-pink/20">
+            <div id="pulseIcon" class="w-24 h-24 rounded-full animate-pulse flex items-center justify-center text-4xl mb-6">
                 <i class="fa fa-microphone"></i>
             </div>
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -91,8 +116,8 @@
         </div>
         <!-- 结果页 -->
         <div id="result" class="hidden flex-col items-center">
-            <span id="resultIcon" class="result-icon">😻</span>
-            <div class="w-full bg-bg-card p-5 rounded-2xl border border-gray-700 mb-6 mt-4">
+            <img id="resultAvatar" src="./cat-icon.png" class="result-avatar mb-4" alt="头像">
+            <div class="w-full bg-bg-card p-5 rounded-2xl border border-gray-700 mb-6">
                 <p id="resultText" class="text-lg"></p>
             </div>
             <div class="flex gap-4 w-full">
@@ -118,15 +143,16 @@
     let camMode = "environment";
     const $ = id => document.getElementById(id);
 
-    // UI刷新（零图片，无加载）
-    function refreshUI(){
-        $("slider").style.transform = pet==="cat"?"translateX(0)":"translateX(100%)";
-        $("catBtn").classList.toggle("text-white",pet==="cat");
-        $("catBtn").classList.toggle("text-gray-400",pet!=="cat");
-        $("dogBtn").classList.toggle("text-white",pet==="dog");
-        $("dogBtn").classList.toggle("text-gray-400",pet!=="dog");
-        $("resultIcon").textContent = PET_ICON[pet];
-        document.querySelectorAll(".dot").forEach(d=>d.classList.toggle("blue",pet==="dog"));
+    // UI刷新
+    function refreshUI() {
+        $("slider").style.transform = pet === "cat" ? "translateX(0)" : "translateX(100%)";
+        $("catBtn").classList.toggle("text-white", pet === "cat");
+        $("catBtn").classList.toggle("text-gray-400", pet !== "cat");
+        $("dogBtn").classList.toggle("text-white", pet === "dog");
+        $("dogBtn").classList.toggle("text-gray-400", pet !== "dog");
+        $("pulseIcon").className = `w-24 h-24 rounded-full ${pet === "cat" ? "animate-pulse" : "animate-pulseBlue"} flex items-center justify-center text-4xl mb-6`;
+        document.querySelectorAll(".dot").forEach(d => d.classList.toggle("blue", pet === "dog"));
+        $("resultAvatar").src = pet === "cat" ? CAT_IMG : DOG_IMG;
     }
 
     // 粒子特效（满血生效）
@@ -136,59 +162,73 @@
             const p = document.createElement("div");
             p.className = "particle";
             const size = Math.random() * 8 + 4;
-            p.style.cssText = `width:${size}px;height:${size}px;background:${color};box-shadow:0 0 6px ${color};left:${x}px;top:${y}px`;
+            p.style.width = size + "px";
+            p.style.height = size + "px";
+            p.style.backgroundColor = color;
+            p.style.boxShadow = `0 0 6px ${color}`;
+            p.style.left = x + "px";
+            p.style.top = y + "px";
             document.body.appendChild(p);
+            
             let angle = Math.random() * Math.PI * 2;
             let speed = Math.random() * 4 + 2;
-            let vx = Math.cos(angle)*speed, vy=Math.sin(angle)*speed, opacity=1;
-            !function animate(){
-                p.style.left = parseFloat(p.style.left)+vx+"px";
-                p.style.top = parseFloat(p.style.top)+vy+"px";
-                opacity-=0.02; p.style.opacity=opacity;
-                opacity>0 ? requestAnimationFrame(animate) : p.remove();
-            }();
+            let vx = Math.cos(angle) * speed;
+            let vy = Math.sin(angle) * speed;
+            let opacity = 1;
+            
+            function animate() {
+                p.style.left = parseFloat(p.style.left) + vx + "px";
+                p.style.top = parseFloat(p.style.top) + vy + "px";
+                opacity -= 0.02;
+                p.style.opacity = opacity;
+                opacity > 0 ? requestAnimationFrame(animate) : p.remove();
+            }
+            requestAnimationFrame(animate);
         }
     }
 
-    // 全局绑定粒子
-    document.querySelectorAll("button").forEach(btn=>{
-        btn.onclick = e => {
+    // 全局绑定所有按钮粒子
+    document.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", (e) => {
             const rect = btn.getBoundingClientRect();
-            createParticles(rect.left+rect.width/2, rect.top+rect.height/2);
-        };
+            createParticles(rect.left + rect.width/2, rect.top + rect.height/2);
+        });
     });
 
     // 随机文案
-    const randomText = () => FALLBACK[pet][Math.floor(Math.random()*FALLBACK[pet].length)];
+    const randomText = () => FALLBACK[pet][Math.floor(Math.random() * FALLBACK[pet].length)];
 
     // 视图切换
     const view = name => {
-        ["home","recording","loading","result"].forEach(v=>$(v).classList.toggle("hidden",v!==name));
-        if(name!=="cameraLayer"&&camStream) camStream.getTracks().forEach(t=>t.stop());
+        ["home", "recording", "loading", "result"].forEach(v => $(v).classList.toggle("hidden", v !== name));
+        if (name !== "cameraLayer" && camStream) camStream.getTracks().forEach(t => t.stop());
     };
 
     // 摄像头功能
     const openCam = async () => {
-        try{
-            camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:camMode}});
+        try {
+            camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camMode } });
             $("video").srcObject = camStream;
             $("cameraLayer").classList.remove("hidden");
-        }catch{ view("loading"); setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600); }
+        } catch {
+            view("loading");
+            setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600);
+        }
     };
 
     // 事件绑定
-    $("catBtn").onclick = ()=>{pet="cat";refreshUI()};
-    $("dogBtn").onclick = ()=>{pet="dog";refreshUI()};
-    $("recordBtn").onclick = ()=>view("recording");
-    $("stopRecord").onclick = ()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("catBtn").onclick = () => { pet = "cat"; refreshUI(); };
+    $("dogBtn").onclick = () => { pet = "dog"; refreshUI(); };
+    $("recordBtn").onclick = () => view("recording");
+    $("stopRecord").onclick = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
     $("cameraBtn").onclick = openCam;
-    $("switchCam").onclick = ()=>{camMode=camMode==="user"?"environment":"user";openCam()};
-    $("takePhoto").onclick = ()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
-    $("closeCam").onclick = ()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("home")};
-    $("fileBtn").onclick = ()=>$("fileInput").click();
-    $("fileInput").onchange = ()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
-    $("backBtn").onclick = ()=>view("home");
-    $("retryBtn").onclick = ()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("switchCam").onclick = () => { camMode = camMode === "user" ? "environment" : "user"; openCam(); };
+    $("takePhoto").onclick = () => { camStream.getTracks().forEach(t => t.stop()); $("cameraLayer").classList.add("hidden"); view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
+    $("closeCam").onclick = () => { camStream.getTracks().forEach(t => t.stop()); $("cameraLayer").classList.add("hidden"); view("home"); };
+    $("fileBtn").onclick = () => $("fileInput").click();
+    $("fileInput").onchange = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
+    $("backBtn").onclick = () => view("home");
+    $("retryBtn").onclick = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
 
     // 初始化
     refreshUI();
