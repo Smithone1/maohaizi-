@@ -73,14 +73,9 @@
         .dot.blue { background:#4A9FFF; }
         .dot:nth-child(2) { animation-delay:0.2s; }
         .dot:nth-child(3) { animation-delay:0.4s; }
-
-        /* 粒子特效 */
-        .particle {
-            position: fixed;
-            pointer-events: none;
-            border-radius: 50%;
-            z-index: 10000;
-        }
+        .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 10000; }
+        /* 相机镜像 */
+        #video { transform: scaleX(-1); }
     </style>
 </head>
 
@@ -94,8 +89,12 @@
     <div class="glass-bg rounded-3xl p-6">
         <div class="pet-tabs mb-6">
             <div class="tab-slider" id="slider"></div>
-            <button class="flex-1 py-4 text-white font-bold z-10" id="catBtn">🐱 猫主子</button>
-            <button class="flex-1 py-4 text-gray-400 font-bold z-10" id="dogBtn">🐶 摆烂狗</button>
+            <button class="flex-1 py-4 text-white font-bold z-10 flex items-center justify-center gap-2" id="catBtn">
+                <span class="text-3xl">😻</span> 软萌喵
+            </button>
+            <button class="flex-1 py-4 text-gray-400 font-bold z-10 flex items-center justify-center gap-2" id="dogBtn">
+                <span class="text-3xl">🐶</span> 奶萌汪
+            </button>
         </div>
 
         <!-- 主页 -->
@@ -133,7 +132,7 @@
 
         <!-- 结果 -->
         <div id="result" class="hidden flex-col items-center">
-            <div class="text-6xl mb-4" id="petEmoji">🐱</div>
+            <div class="text-7xl mb-4" id="petEmoji">😻</div>
             <div class="w-full bg-bg-card p-5 rounded-2xl border border-gray-700 mb-6">
                 <p id="resultText" class="text-lg"></p>
             </div>
@@ -145,12 +144,15 @@
     </div>
 </div>
 
-<!-- 相机层 -->
-<div id="cameraLayer" class="fixed inset-0 z-50 hidden bg-black">
-    <video id="video" autoplay class="w-full h-full object-cover"></video>
-    <div class="absolute bottom-10 left-0 right-0 flex justify-center gap-4">
-        <button id="takeBtn" class="py-3 px-6 bg-white rounded-full text-black">拍照</button>
-        <button id="closeCamera" class="py-3 px-6 bg-red-500 rounded-full">关闭</button>
+<!-- 相机层（新增前后摄像头切换） -->
+<div id="cameraLayer" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
+    <video id="video" autoplay playsinline class="flex-1 w-full object-cover"></video>
+    <div class="absolute bottom-10 left-0 right-0 flex justify-center items-center gap-3 px-4">
+        <button id="switchCamBtn" class="py-3 px-4 bg-white/20 backdrop-blur rounded-full text-white">
+            <i class="fa fa-refresh"></i> 切换镜头
+        </button>
+        <button id="takeBtn" class="py-3 px-8 bg-white rounded-full text-black font-bold">拍照</button>
+        <button id="closeCamera" class="py-3 px-4 bg-red-500 rounded-full text-white">关闭</button>
     </div>
 </div>
 
@@ -159,18 +161,20 @@
 <script>
     let pet = 'cat';
     let isRecording = false;
+    let cameraStream = null;
+    let currentCamera = 'environment'; // 默认后置
 
     const $ = (id) => document.getElementById(id);
 
-    // 切换宠物
+    // 超萌头像切换UI
     function updatePetUI() {
         $('slider').style.transform = pet === 'cat' ? 'translateX(0)' : 'translateX(100%)';
-        $('catBtn').className = 'flex-1 py-4 ' + (pet === 'cat' ? 'text-white' : 'text-gray-400') + ' font-bold z-10';
-        $('dogBtn').className = 'flex-1 py-4 ' + (pet === 'dog' ? 'text-white' : 'text-gray-400') + ' font-bold z-10';
+        $('catBtn').className = 'flex-1 py-4 ' + (pet === 'cat' ? 'text-white' : 'text-gray-400') + ' font-bold z-10 flex items-center justify-center gap-2';
+        $('dogBtn').className = 'flex-1 py-4 ' + (pet === 'dog' ? 'text-white' : 'text-gray-400') + ' font-bold z-10 flex items-center justify-center gap-2';
         $('pulseIcon').className = 'w-24 h-24 rounded-full ' + (pet === 'cat' ? 'animate-pulse' : 'animate-pulseBlue') + ' flex items-center justify-center text-4xl mb-6';
         document.querySelectorAll('.dot').forEach(d => d.className = 'dot ' + (pet === 'dog' ? 'blue' : ''));
-        $('petEmoji').innerText = pet === 'cat' ? '🐱' : '🐶';
-        $('tip').innerText = pet === 'cat' ? '点击麦克风开始录音' : '点击录制狗狗心声';
+        $('petEmoji').innerText = pet === 'cat' ? '😻' : '🐶';
+        $('tip').innerText = pet === 'cat' ? '点击录制软萌喵叫声' : '点击录制奶萌汪汪声';
     }
 
     // 粒子特效
@@ -203,7 +207,7 @@
         }
     }
 
-    // 绑定粒子
+    // 全局按钮粒子绑定
     document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const rect = btn.getBoundingClientRect();
@@ -217,92 +221,62 @@
         return list[Math.floor(Math.random()*list.length)];
     }
 
-    // 页面控制
+    // 页面切换
     function showHome() {
         $('home').classList.remove('hidden');
         $('recording').classList.add('hidden');
         $('loading').classList.add('hidden');
         $('result').classList.add('hidden');
         $('cameraLayer').classList.add('hidden');
+        stopCamera();
     }
-
-    function showRecord() {
-        $('home').classList.add('hidden');
-        $('recording').classList.remove('hidden');
-        $('loading').classList.add('hidden');
-        $('result').classList.add('hidden');
-    }
-
-    function showLoading() {
-        $('home').classList.add('hidden');
-        $('recording').classList.add('hidden');
-        $('loading').classList.remove('hidden');
-        $('result').classList.add('hidden');
-    }
-
+    function showRecord() { showHome(); $('recording').classList.remove('hidden'); }
+    function showLoading() { showHome(); $('loading').classList.remove('hidden'); }
     function showResult() {
         $('resultText').innerText = getLine();
-        $('home').classList.add('hidden');
-        $('recording').classList.add('hidden');
-        $('loading').classList.add('hidden');
-        $('result').classList.remove('hidden');
+        showHome(); $('result').classList.remove('hidden');
     }
 
-    // 录音
-    $('recordBtn').onclick = () => {
-        isRecording = true;
-        showRecord();
-    };
-    $('stopRecord').onclick = () => {
-        isRecording = false;
-        showLoading();
-        setTimeout(showResult, 1600);
-    };
-
-    // 相机
-    $('cameraBtn').onclick = async () => {
+    // 摄像头核心（前后切换）
+    async function startCamera() {
         try {
+            stopCamera();
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentCamera }
+            });
+            $('video').srcObject = cameraStream;
             $('cameraLayer').classList.remove('hidden');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            $('video').srcObject = stream;
         } catch (e) {
-            showLoading();
-            setTimeout(showResult, 1600);
+            alert('摄像头权限失败！');
+            showLoading(); setTimeout(showResult, 1600);
         }
-    };
-    $('closeCamera').onclick = () => {
-        $('video').srcObject?.getTracks().forEach(t => t.stop());
-        showHome();
-    };
-    $('takeBtn').onclick = () => {
-        $('video').srcObject?.getTracks().forEach(t => t.stop());
-        showLoading();
-        setTimeout(showResult, 1600);
+    }
+    function stopCamera() {
+        if(cameraStream) cameraStream.getTracks().forEach(t=>t.stop());
+        cameraStream = null;
+    }
+
+    // 切换前后摄像头
+    $('switchCamBtn').onclick = () => {
+        currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+        startCamera();
     };
 
-    // 上传
-    $('fileBtn').onclick = () => {
-        $('fileInput').click();
-    };
-    $('fileInput').onchange = () => {
-        showLoading();
-        setTimeout(showResult, 1600);
-    };
-
-    // 返回
+    // 功能绑定
+    $('recordBtn').onclick = showRecord;
+    $('stopRecord').onclick = () => { showLoading(); setTimeout(showResult, 1600); };
+    $('cameraBtn').onclick = startCamera;
+    $('closeCamera').onclick = showHome;
+    $('takeBtn').onclick = () => { stopCamera(); showLoading(); setTimeout(showResult, 1600); };
+    $('fileBtn').onclick = () => $('fileInput').click();
+    $('fileInput').onchange = () => { showLoading(); setTimeout(showResult, 1600); };
     $('backBtn').onclick = showHome;
-    $('retryBtn').onclick = () => {
-        showLoading();
-        setTimeout(showResult, 1600);
-    };
-
-    // 切换
-    $('catBtn').onclick = () => { pet = 'cat'; updatePetUI(); };
-    $('dogBtn').onclick = () => { pet = 'dog'; updatePetUI(); };
+    $('retryBtn').onclick = () => { showLoading(); setTimeout(showResult, 1600); };
+    $('catBtn').onclick = () => { pet='cat'; updatePetUI(); };
+    $('dogBtn').onclick = () => { pet='dog'; updatePetUI(); };
 
     // 初始化
     updatePetUI();
-    showHome();
 </script>
 </body>
 </html>
