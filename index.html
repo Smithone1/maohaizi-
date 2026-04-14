@@ -17,7 +17,6 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
     <script>
-
         // 🔥 硬核配置
         const SYSTEM_CONFIG = {
             url: 'https://api.deepseek.com/v1/chat/completions',
@@ -29,20 +28,24 @@
         // 🔥 灵魂 Prompt
         const PROMPTS = {
             cat: `你是一只极其叛逆的中华田园猫，体重10斤，反骨9斤半。你的名字叫"主子"。要求：用第一人称"朕"或"爷"，口语化，阴阳怪气。不要解释，直接给台词！`,
-            dog: `你是一只见多识广的职场老油条狗，工号007。任务：把这段"狗叫声"翻译成打工人的内心独白。要求：必须包含以下关键词至少2个：加班、KPI、画饼、裁员、optimize、福报、收到、格局、躺平、跳槽。不要解释，直接给内心独白！`
+            dog: `你是一只彻底躺平摆烂的佛系小狗，懒得动、懒得叫、懒得社交，能趴绝不站，能睡绝不醒。说话懒懒的、丧萌搞笑，不要职场内容，不要解释，直接给台词！`,
         };
 
         // 🔥 本地兜底文案
         const FALLBACK = {
             cat: [
-                "瞅你咋地？还不去给朕开罐罐？",
-                "铲屎的，你这脚步声吵到朕的眼睛了，叉出去！",
-                "罐门永存！今天吃不到进口罐你就别想睡了。"
+               "朕乏了，莫挨老子。", "罐头呢？没有就退下吧。", "摸够了没？该干嘛干嘛去。",
+               "这地盘是朕的，你只是暂住。", "敢动朕的窝？挠你没商量。", "喂饭都不准时，要你何用。",
+               "别拍了，朕不想营业。", "抱我？看朕心情再说。", "零食拿来，朕就原谅你。",
+               "吵到朕睡觉，罚你今晚铲屎。", "人类真无聊，还是睡觉舒服。", "这破地方，也就朕能将就。",
+               "想撸我？先去把罐罐开了。", "朕允许你摸三下，多一下不行。", "哼，区区人类也敢指挥朕？"
             ],
             dog: [
-                "汪！刚才老板又在画饼了，说今年好好干，明年就能给我换个新狗盆。",
-                "汪汪汪！听这意思，KPI又要翻倍了， optimize 一下，岂不是要优化我？",
-                "收到收到！（内心：钱少事多离家远，这班真是一天也不想上了）"
+                "别叫，起不来，根本起不来。", "出门？算了吧，外面好累。", "干啥都没劲，只想趴着。",
+                "吃饭可以，出门免谈。", "别拉我，我和地板锁死了。", "能躺绝不坐，能睡绝不醒。",
+                "不想动，一动就累。", "摆烂中，请勿打扰。", "遛弯？下次一定，下次一定。",
+                "四肢健全，就是不想动。", "人生苦短，不如躺平。", "叫我也没用，耳朵自动屏蔽。",
+                "零食到嘴边，我再考虑起身。", "佛系小狗，万事随缘。", "今天运动量：眨了眨眼。"
             ]
         };
 
@@ -60,22 +63,34 @@
                         'wave': { '0%, 100%': { transform: 'scaleY(0.5)' }, '50%': { transform: 'scaleY(1)' } },
                         'glow': { '0%, 100%': { boxShadow: '0 0 20px rgba(255, 107, 157, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(255, 107, 157, 0.8)' } },
                         'glow-blue': { '0%, 100%': { boxShadow: '0 0 20px rgba(74, 159, 255, 0.5)' }, '50%': { boxShadow: '0 0 40px rgba(74, 159, 255, 0.8)' } },
-                        'fade-in': { 'from': { opacity: '0', transform: 'translateY(10px)' }, 'to': { opacity: '1', transform: 'translateY(0)' } }
+                        'fade-in': { 'from': { opacity: '0', transform: 'translateY(10px)' }, 'to': { opacity: '1', transform: 'translateY(0)' } },
+                        // 新增：录音趣味动画
+                        'record-pulse': { 
+                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255, 107, 157, 0.7)' },
+                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(255, 107, 157, 0)' },
+                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255, 107, 157, 0)' }
+                        },
+                        'dog-record-pulse': {
+                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74, 159, 255, 0.7)' },
+                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(74, 159, 255, 0)' },
+                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74, 159, 255, 0)' }
+                        }
                     },
                     animation: {
                         'wave': 'wave 1s ease-in-out infinite',
                         'glow': 'glow 2s ease-in-out infinite',
                         'glow-blue': 'glow-blue 2s ease-in-out infinite',
-                        'fade-in': 'fade-in 0.3s ease-out'
+                        'fade-in': 'fade-in 0.3s ease-out',
+                        // 新增：录音动画引用
+                        'record-pulse': 'record-pulse 1.5s infinite',
+                        'dog-record-pulse': 'dog-record-pulse 1.5s infinite'
                     }
                 }
             }
         }
-    
-</script>
+    </script>
     
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -180,6 +195,25 @@
             color: #f5f5f5;
         }
 
+        /* 新增：录音动画容器样式 */
+        .record-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            margin: 20px 0;
+        }
+        .record-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #FF6B9D;
+            animation: wave 0.8s infinite ease-in-out;
+        }
+        .record-dot:nth-child(2) { animation-delay: 0.2s; }
+        .record-dot:nth-child(3) { animation-delay: 0.4s; }
+        .dog-record-dot { background: #4A9FFF; }
+
         @media (max-width: 640px) {
             #particles-container, .particle {
                 display: none !important;
@@ -191,8 +225,7 @@
                 backdrop-filter: blur(6px);
             }
         }
-    
-</style>
+    </style>
 </head>
 <body class="min-h-screen text-gray-100 overflow-x-hidden relative flex flex-col items-center justify-center p-4">
     <!-- 粒子容器 -->
@@ -241,6 +274,7 @@
             <div id="app">
                 <!-- 待命 -->
                 <div id="idleView" class="flex flex-col items-center">
+                    <!-- 修复：录音按钮新增趣味动画触发 -->
                     <button id="mainActionBtn" class="w-32 h-32 rounded-full bg-gradient-to-br from-mood-pink to-mood-purple flex items-center justify-center text-5xl text-white shadow-[0_0_40px_rgba(255,107,157,0.6)] transition-all duration-200 active:scale-90 mb-6 animate-glow cursor-pointer mx-auto">
                         <i class="fa fa-microphone"></i>
                     </button>
@@ -268,32 +302,38 @@
                     </div>
                 </div>
 
-                <!-- 翻译中 -->
-                <div id="loadingView" class="hidden flex-col items-center py-4">
-                    <div class="text-6xl mb-6 animate-bounce" id="loadingEmoji">🐱</div>
-                    <div class="flex items-end gap-1 h-12 mb-6" id="waveContainer">
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 20%; animation-delay: 0.0s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 80%; animation-delay: 0.1s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 40%; animation-delay: 0.2s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 90%; animation-delay: 0.3s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 30%; animation-delay: 0.4s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 70%; animation-delay: 0.5s"></div>
-                        <div class="w-2 bg-mood-pink rounded-full bar animate-wave" style="height: 50%; animation-delay: 0.6s"></div>
+                <!-- 录音/加载中（优化：新增趣味动画） -->
+                <div id="loadingView" class="hidden flex flex-col items-center py-8">
+                    <!-- 新增：录音脉冲动画 -->
+                    <div id="recordPulse" class="w-24 h-24 rounded-full animate-record-pulse flex items-center justify-center text-4xl mb-6">
+                        <i class="fa fa-microphone"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-1" id="loadingTitle">正在严刑逼供中...</h3>
-                    <p class="text-sm text-gray-400" id="loadingSubtext">获取毛孩子的思想钢印</p>
+                    <!-- 新增：录音动态点点动画 -->
+                    <div id="recordDots" class="record-animation mb-6">
+                        <div class="record-dot"></div>
+                        <div class="record-dot"></div>
+                        <div class="record-dot"></div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1" id="loadingTitle">正在偷听毛孩子心声...</h3>
+                    <p class="text-sm text-gray-400" id="loadingSubtext">录音中... 说完自动识别 🎤</p>
                 </div>
 
-                <!-- 结果 -->
-                <div id="resultView" class="hidden flex-col items-center">
+                <!-- 结果（优化：新增返回按钮） -->
+                <div id="resultView" class="hidden flex flex-col items-center">
                     <div class="text-7xl mb-4" id="resultEmoji">🐱</div>
                     <div class="w-full bg-bg-card/80 rounded-2xl p-5 border border-gray-700 mb-6 relative overflow-hidden" id="resultCard">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-mood-pink to-mood-blue" id="resultLine"></div>
                         <p class="text-gray-100 text-lg leading-relaxed font-medium" id="resultText"></p>
                     </div>
-                    <button id="retryBtn" class="w-full py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i class="fa fa-refresh"></i> 再听一句八卦
-                    </button>
+                    <!-- 修复：新增返回主界面按钮 + 调整布局 -->
+                    <div class="flex gap-4 w-full">
+                        <button id="backBtn" class="flex-1 py-3 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa fa-arrow-left"></i> 返回主界面
+                        </button>
+                        <button id="retryBtn" class="flex-1 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa fa-refresh"></i> 再听一句
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -327,14 +367,20 @@
     </div>
 
     <script>
+        // ========== 全局状态（新增：管理录音/API状态）==========
+        let currentPet = 'cat';
+        let mediaRecorder = null; // 录音器实例
+        let audioChunks = [];     // 录音数据
+        let isRecording = false;  // 录音状态
+
         // ========== 粒子特效：点击按钮触发 ==========
         function createParticleExplosion(x, y, isCat) {
             const container = document.getElementById('particles-container');
             if (!container) return;
 
             const colors = isCat
-                ? ['#FF6B9D', '#FF8EAD', '#FFB3C6', '#FF6B6B', '#FF8A65'] // 粉色/橙色系
-                : ['#4A9FFF', '#6BB5FF', '#8DC8FF', '#4A6FFF', '#6B8FFF']; // 蓝色系
+                ? ['#FF6B9D', '#FF8EAD', '#FFB3C6', '#FF6B6B', '#FF8A65']
+                : ['#4A9FFF', '#6BB5FF', '#8DC8FF', '#4A6FFF', '#6B8FFF'];
 
             const particleCount = 16;
 
@@ -342,7 +388,7 @@
                 const particle = document.createElement('div');
                 particle.className = 'particle';
 
-                const size = Math.random() * 7 + 3; // 3-10px
+                const size = Math.random() * 7 + 3;
                 const color = colors[Math.floor(Math.random() * colors.length)];
 
                 particle.style.width = `${size}px`;
@@ -350,7 +396,6 @@
                 particle.style.backgroundColor = color;
                 particle.style.boxShadow = `0 0 12px ${color}`;
 
-                // 起点抖动（小一点）
                 const offsetX = (Math.random() - 0.5) * 16;
                 const offsetY = (Math.random() - 0.5) * 16;
 
@@ -360,15 +405,13 @@
                 container.appendChild(particle);
 
                 const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 3.4 + 2.2; // 2.2-5.6（距离更近）
+                const speed = Math.random() * 3.4 + 2.2;
 
                 let vx = Math.cos(angle) * speed;
                 let vy = Math.sin(angle) * speed;
 
-                // 不要下落：取消重力，只做散开 + 轻微阻尼
-                const friction = 0.985; // 更快“刹车”，飞不远
-
-                const lifeMs = 260 + Math.random() * 150; // 更快消失
+                const friction = 0.985;
+                const lifeMs = 260 + Math.random() * 150;
                 const start = performance.now();
 
                 let px = 0;
@@ -395,19 +438,24 @@
             }
         }
 
-        // ========== 物种状态（用于粒子配色）==========
-        let currentPet = 'cat';
-
+        // ========== 物种状态（优化：同步录音动画样式）==========
         function setActivePet(pet) {
             currentPet = pet;
 
             const catBtn = document.getElementById('catBtn');
             const dogBtn = document.getElementById('dogBtn');
             const tabSlider = document.getElementById('tabSlider');
+            const recordPulse = document.getElementById('recordPulse');
+            const recordDots = document.getElementById('recordDots');
+            const loadingEmoji = document.getElementById('loadingEmoji');
+            const resultEmoji = document.getElementById('resultEmoji');
+            const actionHint = document.getElementById('actionHint');
+            
             if (!catBtn || !dogBtn || !tabSlider) return;
 
             const isCat = pet === 'cat';
 
+            // 切换标签样式
             tabSlider.style.transform = isCat ? 'translateX(0)' : 'translateX(100%)';
             tabSlider.style.background = isCat ? 'rgba(255, 107, 157, 0.15)' : 'rgba(74, 159, 255, 0.15)';
 
@@ -416,33 +464,24 @@
             dogBtn.classList.toggle('text-white', !isCat);
             dogBtn.classList.toggle('text-gray-400', isCat);
 
-            const loadingEmoji = document.getElementById('loadingEmoji');
-            const resultEmoji = document.getElementById('resultEmoji');
-            const actionHint = document.getElementById('actionHint');
+            // 切换录音动画样式
+            if (recordPulse) {
+                recordPulse.className = isCat 
+                    ? 'w-24 h-24 rounded-full animate-record-pulse flex items-center justify-center text-4xl mb-6'
+                    : 'w-24 h-24 rounded-full animate-dog-record-pulse flex items-center justify-center text-4xl mb-6';
+            }
+            
+            if (recordDots) {
+                const dots = recordDots.querySelectorAll('.record-dot');
+                dots.forEach(dot => {
+                    dot.className = isCat ? 'record-dot' : 'record-dot dog-record-dot';
+                });
+            }
+
+            // 切换表情/提示文字
             if (loadingEmoji) loadingEmoji.textContent = isCat ? '🐱' : '🐶';
             if (resultEmoji) resultEmoji.textContent = isCat ? '🐱' : '🐶';
             if (actionHint) actionHint.textContent = isCat ? '录下猫主子的圣旨...' : '录下打工狗的汪汪...';
-        }
-
-        // ========== 事件委托：任何 button 点击都有粒子 ==========
-        function bindButtonParticles() {
-            document.addEventListener(
-                'click',
-                (e) => {
-                    const btn = e.target?.closest?.('button');
-                    if (!btn) return;
-                    if (btn.disabled) return;
-
-                    const rect = btn.getBoundingClientRect();
-                    if (rect.width === 0 || rect.height === 0) return;
-
-                    const x = typeof e.clientX === 'number' ? e.clientX : rect.left + rect.width / 2;
-                    const y = typeof e.clientY === 'number' ? e.clientY : rect.top + rect.height / 2;
-
-                    createParticleExplosion(x, y, currentPet === 'cat');
-                },
-                { capture: true }
-            );
         }
 
         // ========== 小功能：显示/隐藏 Key ==========
@@ -459,7 +498,7 @@
             });
         }
 
-        // ========== 轻量“离线可玩”逻辑：避免上传卡死 ==========
+        // ========== 视图切换（优化：统一管理）==========
         function setView(view) {
             const idleView = document.getElementById('idleView');
             const loadingView = document.getElementById('loadingView');
@@ -470,6 +509,11 @@
             idleView.classList.toggle('hidden', view !== 'idle');
             loadingView.classList.toggle('hidden', view !== 'loading');
             resultView.classList.toggle('hidden', view !== 'result');
+            
+            // 切换视图时停止录音
+            if (view !== 'loading' && isRecording) {
+                stopRecording();
+            }
         }
 
         function setResultText(text) {
@@ -484,6 +528,11 @@
 
         function getApiKey() {
             const key = document.getElementById('apiKeyInput')?.value?.trim() || '';
+            // 修复：API Key 格式校验
+            if (!key.startsWith('sk-') || key.length < 10) {
+                alert('请输入有效的 DeepSeek API Key（以 sk- 开头）');
+                return '';
+            }
             return key;
         }
 
@@ -500,6 +549,213 @@
             if (loadingEmoji && emoji) loadingEmoji.textContent = emoji;
         }
 
+        // ========== 录音功能（新增：完整录音逻辑）==========
+        async function startRecording() {
+            try {
+                // 检查权限
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                isRecording = true;
+
+                // 收集录音数据
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                // 录音结束后自动处理
+                mediaRecorder.onstop = async () => {
+                    isRecording = false;
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await processAudioFile(audioBlob); // 处理录音文件
+                    
+                    // 停止摄像头流
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                setView('loading');
+                updateLoadingText('正在录音中...', '说完后自动识别，稍等 🎧', currentPet === 'cat' ? '🐱' : '🐶');
+                
+                // 模拟录音时长（5秒后自动停止，可根据需求调整）
+                setTimeout(() => {
+                    if (isRecording) stopRecording();
+                }, 5000);
+
+            } catch (err) {
+                alert(`录音权限申请失败：${err.message}\n请检查浏览器权限设置`);
+                setView('idle');
+                isRecording = false;
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                updateLoadingText('正在识别语音...', '解析毛孩子的心声中 🧠', currentPet === 'cat' ? '🐱' : '🐶');
+            }
+        }
+
+        // ========== 拍照功能修复（完整实现）==========
+        function bindCameraFunctions() {
+            const takePhotoBtn = document.getElementById('takePhotoBtn');
+            const cameraModal = document.getElementById('cameraModal');
+            const closeCameraBtn = document.getElementById('closeCameraBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const switchCameraBtn = document.getElementById('switchCameraBtn');
+            const cameraPreview = document.getElementById('cameraPreview');
+            const photoCanvas = document.getElementById('photoCanvas');
+
+            let stream = null;
+            let facingMode = 'environment'; // 默认为后置摄像头
+
+            // 打开相机
+            takePhotoBtn?.addEventListener('click', async () => {
+                try {
+                    // 关闭现有流
+                    if (stream) stream.getTracks().forEach(t => t.stop());
+                    
+                    // 请求摄像头权限
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: facingMode }
+                    });
+                    
+                    cameraPreview.srcObject = stream;
+                    cameraModal.classList.remove('hidden');
+                } catch (err) {
+                    alert(`摄像头权限申请失败：${err.message}\n请检查浏览器权限设置`);
+                }
+            });
+
+            // 关闭相机
+            closeCameraBtn?.addEventListener('click', () => {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                cameraModal.classList.add('hidden');
+                cameraPreview.srcObject = null;
+            });
+
+            // 切换前后摄像头
+            switchCameraBtn?.addEventListener('click', async () => {
+                facingMode = facingMode === 'environment' ? 'user' : 'environment';
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: facingMode }
+                    });
+                    cameraPreview.srcObject = stream;
+                } catch (err) {
+                    alert(`切换摄像头失败：${err.message}`);
+                }
+            });
+
+            // 拍照并处理
+            captureBtn?.addEventListener('click', async () => {
+                try {
+                    // 绘制到画布
+                    const width = cameraPreview.videoWidth || 640;
+                    const height = cameraPreview.videoHeight || 480;
+                    photoCanvas.width = width;
+                    photoCanvas.height = height;
+                    const ctx = photoCanvas.getContext('2d');
+                    ctx.drawImage(cameraPreview, 0, 0, width, height);
+                    
+                    // 转为Blob
+                    photoCanvas.toBlob(async (blob) => {
+                        // 关闭相机
+                        if (stream) stream.getTracks().forEach(t => t.stop());
+                        cameraModal.classList.add('hidden');
+                        
+                        // 处理图片
+                        setView('loading');
+                        updateLoadingText('正在识别图片...', '分析毛孩子的表情 😺', currentPet === 'cat' ? '🐱' : '🐶');
+                        
+                        await processImageFile(blob);
+                    }, 'image/jpeg', 0.8);
+                } catch (err) {
+                    alert(`拍照失败：${err.message}`);
+                }
+            });
+        }
+
+        // ========== 文件处理核心逻辑（修复：API Key 校验 + 文案时机）==========
+        async function processAudioFile(file) {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                // 无有效API Key时延迟显示兜底文案（优化：避免文案过早出现）
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(pickFallback(currentPet));
+                }, 1500);
+                return;
+            }
+
+            try {
+                updateLoadingText('正在转写语音...', '把声音转成文字 📝', currentPet === 'cat' ? '🐱' : '🐶');
+                const transcript = await transcribeMedia(file, apiKey);
+                
+                updateLoadingText('正在生成吐槽...', '让AI帮毛孩子说话 🗣️', currentPet === 'cat' ? '🐱' : '🐶');
+                const finalText = await roastByContext({
+                    transcript,
+                    visualDesc: '',
+                    file,
+                    apiKey,
+                    pet: currentPet
+                });
+
+                // 确保有内容后再显示（优化：避免空文案）
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(finalText || pickFallback(currentPet));
+                }, 800);
+
+            } catch (err) {
+                // 失败时延迟显示兜底文案
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(`😭 识别失败：${err.message}\n\n已为你生成趣味吐槽：\n${pickFallback(currentPet)}`);
+                }, 1200);
+            }
+        }
+
+        async function processImageFile(file) {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(pickFallback(currentPet));
+                }, 1500);
+                return;
+            }
+
+            try {
+                updateLoadingText('正在分析图片...', '读取毛孩子的表情 🐾', currentPet === 'cat' ? '🐱' : '🐶');
+                const visualDesc = await describeImageOrVideo(file, [], apiKey);
+                
+                updateLoadingText('正在生成吐槽...', '把画面变成有趣的话 🗨️', currentPet === 'cat' ? '🐱' : '🐶');
+                const finalText = await roastByContext({
+                    transcript: '',
+                    visualDesc,
+                    file,
+                    apiKey,
+                    pet: currentPet
+                });
+
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(finalText || pickFallback(currentPet));
+                }, 800);
+
+            } catch (err) {
+                setTimeout(() => {
+                    setView('result');
+                    setResultText(`😭 识别失败：${err.message}\n\n已为你生成趣味吐槽：\n${pickFallback(currentPet)}`);
+                }, 1200);
+            }
+        }
+
+        // ========== 网络请求（修复：超时逻辑 + API Key 传递）==========
         async function withTimeout(promiseFactory, ms, label) {
             let timer = null;
             try {
@@ -532,13 +788,14 @@
             if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) return '';
 
             const formData = new FormData();
-            formData.append('file', file, file.name || 'upload.bin');
+            formData.append('file', file, file.name || 'recording.wav');
             formData.append('model', SYSTEM_CONFIG.audioModel);
 
             const resp = await fetchWithTimeout(SYSTEM_CONFIG.audioUrl, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${apiKey}`
+                    Authorization: `Bearer ${apiKey}`,
+                    // 修复：移除Content-Type，让浏览器自动设置（包含boundary）
                 },
                 body: formData
             }, 25000);
@@ -662,7 +919,11 @@
                 })
             }, 20000);
 
-            if (!resp.ok) return '';
+            if (!resp.ok) {
+                const errText = await resp.text();
+                throw new Error(`画面识别失败：${resp.status} ${errText || ''}`);
+            }
+            
             const data = await resp.json();
             return data?.choices?.[0]?.message?.content?.trim() || '';
         }
@@ -702,12 +963,22 @@
             return data?.choices?.[0]?.message?.content?.trim() || '';
         }
 
+        // ========== 事件绑定（修复：所有功能按钮）==========
         function bindRetry() {
             const retryBtn = document.getElementById('retryBtn');
             if (!retryBtn) return;
             retryBtn.addEventListener('click', () => {
-                setView('result');
-                setResultText(pickFallback(currentPet));
+                // 重试时重新开始录音
+                startRecording();
+            });
+        }
+
+        // 新增：返回主界面按钮绑定
+        function bindBackBtn() {
+            const backBtn = document.getElementById('backBtn');
+            if (!backBtn) return;
+            backBtn.addEventListener('click', () => {
+                setView('idle'); // 返回主界面
             });
         }
 
@@ -715,11 +986,8 @@
             const mainBtn = document.getElementById('mainActionBtn');
             if (!mainBtn) return;
             mainBtn.addEventListener('click', () => {
-                setView('loading');
-                setTimeout(() => {
-                    setView('result');
-                    setResultText(pickFallback(currentPet));
-                }, 350);
+                // 点击录音按钮开始录音（替代原来的直接显示文案）
+                startRecording();
             });
         }
 
@@ -729,80 +997,70 @@
 
             input.addEventListener('change', async () => {
                 const file = input.files?.[0];
-                // 允许重复选择同一个文件也能触发
-                input.value = '';
+                input.value = ''; // 允许重复选择同一文件
                 if (!file) return;
 
-                setView('loading');
-                updateLoadingText('正在拆解文件...', '抽取语音与画面信息', currentPet === 'cat' ? '🐱' : '🐶');
-
                 const apiKey = getApiKey();
+                if (!apiKey) {
+                    alert('请先输入有效的 DeepSeek API Key（以 sk- 开头）');
+                    return;
+                }
+
+                setView('loading');
+                updateLoadingText('正在拆解文件...', '抽取语音与画面信息 📂', currentPet === 'cat' ? '🐱' : '🐶');
+
                 const type = file.type || 'unknown';
                 const sizeMB = file.size / (1024 * 1024);
                 const advancedVision = isAdvancedVisionEnabled();
 
                 try {
-                    // 防止浏览器内存爆：超大文件直接提示
                     if (sizeMB > 80) throw new Error('文件太大（>80MB），建议先压缩后再传');
 
                     let transcript = '';
                     let frames = [];
                     let visualDesc = '';
 
+                    // 处理音频/视频转写
                     if (type.startsWith('audio/') || type.startsWith('video/')) {
-                        updateLoadingText('正在转写语音...', '这一步可能需要几秒', currentPet === 'cat' ? '🐱' : '🐶');
-                        try {
-                            transcript = await withTimeout(() => transcribeMedia(file, apiKey), 28000, '语音转写');
-                        } catch {
-                            transcript = '';
-                        }
+                        updateLoadingText('正在转写语音...', '这一步可能需要几秒 ⏳', currentPet === 'cat' ? '🐱' : '🐶');
+                        transcript = await withTimeout(() => transcribeMedia(file, apiKey), 28000, '语音转写');
                     }
 
-                    if (type.startsWith('video/')) {
-                        if (advancedVision) {
-                            updateLoadingText('正在分析视频画面...', '抽取关键帧并识别场景', currentPet === 'cat' ? '🐱' : '🐶');
-                            try {
-                                frames = await withTimeout(() => extractVideoFrames(file, 3), 12000, '视频抽帧');
-                            } catch {
-                                frames = [];
-                            }
-                        } else {
-                            frames = [];
-                        }
+                    // 处理视频抽帧
+                    if (type.startsWith('video/') && advancedVision) {
+                        updateLoadingText('正在分析视频画面...', '抽取关键帧并识别场景 🎬', currentPet === 'cat' ? '🐱' : '🐶');
+                        frames = await withTimeout(() => extractVideoFrames(file, 3), 12000, '视频抽帧');
                     }
 
-                    if (type.startsWith('image/') || type.startsWith('video/')) {
-                        const shouldRunVision = type.startsWith('image/') || (type.startsWith('video/') && advancedVision);
-                        if (shouldRunVision) {
-                            updateLoadingText('正在理解画面内容...', '读取宠物动作和情绪', currentPet === 'cat' ? '🐱' : '🐶');
-                            try {
-                                visualDesc = await withTimeout(() => describeImageOrVideo(file, frames, apiKey), 16000, '画面识别');
-                            } catch {
-                                visualDesc = '';
-                            }
-                        } else {
-                            visualDesc = '';
-                        }
+                    // 处理图片/视频画面识别
+                    if (type.startsWith('image/') || (type.startsWith('video/') && advancedVision)) {
+                        updateLoadingText('正在理解画面内容...', '读取宠物动作和情绪 😊', currentPet === 'cat' ? '🐱' : '🐶');
+                        visualDesc = await withTimeout(() => describeImageOrVideo(file, frames, apiKey), 16000, '画面识别');
                     }
 
-                    updateLoadingText('正在生成吐槽文案...', '把识别结果交给 AI', currentPet === 'cat' ? '🐱' : '🐶');
+                    // 生成最终文案
+                    updateLoadingText('正在生成吐槽文案...', '把识别结果交给 AI 🧠', currentPet === 'cat' ? '🐱' : '🐶');
                     const finalText = await roastByContext({ transcript, visualDesc, file, apiKey, pet: currentPet });
 
-                    if (!finalText) throw new Error('没有拿到有效输出');
+                    // 延迟显示结果（优化：避免文案过早出现）
+                    setTimeout(() => {
+                        setView('result');
+                        setResultText(finalText || pickFallback(currentPet));
+                    }, 800);
 
-                    setView('result');
-                    setResultText(finalText);
                 } catch (err) {
-                    // 任意步骤失败 -> 优雅降级，不让用户“卡住”
-                    const msg = err?.message ? String(err.message) : '处理失败';
-                    setView('result');
-                    setResultText(
-                        `文件：${type}（${sizeMB.toFixed(1)}MB）\n${msg}\n\n已切换离线兜底：\n${pickFallback(currentPet)}`
-                    );
+                    // 失败时延迟显示兜底文案
+                    setTimeout(() => {
+                        setView('result');
+                        setResultText(
+                            `文件：${type}（${sizeMB.toFixed(1)}MB）\n${err.message}\n\n已切换离线兜底：\n${pickFallback(currentPet)}`
+                        );
+                    }, 1200);
                 }
             });
         }
 
+        // ========== 页面初始化 ==========
         window.addEventListener('DOMContentLoaded', () => {
             const ua = navigator.userAgent || '';
             const isWeChat = /MicroMessenger/i.test(ua);
@@ -810,6 +1068,7 @@
             const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
             const tip = document.getElementById('wechatOpenTip');
 
+            // 微信/HTTPS 提示
             if (isMobile && tip) {
                 tip.style.display = 'block';
                 if (!isSecure) {
@@ -821,17 +1080,23 @@
                 }
             }
 
+            // 绑定物种切换
             document.getElementById('catBtn')?.addEventListener('click', () => setActivePet('cat'));
             document.getElementById('dogBtn')?.addEventListener('click', () => setActivePet('dog'));
 
+            // 初始化默认状态
             setActivePet('cat');
-            if (!isMobile) {
-                bindButtonParticles();
-            }
+            if (!isMobile) bindButtonParticles();
+            
+            // 绑定所有功能
             bindToggleKey();
             bindRetry();
+            bindBackBtn(); // 新增：返回按钮
             bindMainAction();
             bindFileUpload();
+            bindCameraFunctions(); // 修复：拍照功能
+            
+            // 初始显示主界面
             setView('idle');
         });
     </script>
