@@ -14,14 +14,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script>
-        // 本地图片路径（你把两张图上传到仓库同目录即可）
         const CAT_IMG = "./cat-icon.png";
         const DOG_IMG = "./dog-icon.png";
         
-        // 文案库
         const FALLBACK = {
             cat: ["朕乏了，莫挨老子。", "罐头呢？没有就退下吧。", "摸够了没？该干嘛干嘛去。", "这地盘是朕的，你只是暂住。", "敢动朕的窝？挠你没商量。", "喂饭都不准时，要你何用。", "别拍了，朕不想营业。", "抱我？看朕心情再说。", "零食拿来，朕就原谅你。", "吵到朕睡觉，罚你今晚铲屎。", "人类真无聊，还是睡觉舒服。", "这破地方，也就朕能将就。", "想撸我？先去把罐罐开了。", "朕允许你摸三下，多一下不行。", "哼，区区人类也敢指挥朕？"],
-            dog: ["别叫，起不来，根本起不来。", "出门？算了吧，外面好累。", "干啥都没劲，只想趴着。", "吃饭可以，出门免谈。", "别拉我，我和地板锁死了。", "能躺绝不坐，能睡绝不醒。", "不想动，一动就累。", "摆烂中，请勿打扰。", "遛弯？下次一定，下次一定。", "四肢健全，就是不想动。", "人生苦短，不如躺平。", "叫我也没用，耳朵自动屏蔽。", "零食到嘴边，我再考虑起身。", "佛系小狗，万事随缘。", "今天运动量：眨了眨眼。"]
+            dog: ["别跟我谈理想，我的理想是躺平","让我动？除非零食直接砸脸","干饭不积极，狗生绝对有问题","出门免谈，社恐犯了只想装死","不听不听，本修勾主打反骨","今日运动量：翻了个身而已","别PUA我，狗生只需要吃饱睡","遛弯五分钟，躺平回血两小时","没罐罐？别跟我废话半句","地板太粘脚，真的一步走不动","人类太内卷，我选择躺平成仙","想拿捏我？先拿零食来试试","思考狗生？不如思考下顿吃啥","装睡中，铲屎的别来烦我","活着就行，要啥上进心啊"]
         };
 
         tailwind.config = {
@@ -34,43 +32,32 @@
                         'bg-card': '#16213e',
                     },
                     keyframes: {
-                        wave: {
-                            '0%, 100%': { transform: 'scaleY(0.5)' },
-                            '50%': { transform: 'scaleY(1)' }
-                        },
-                        pulse: {
-                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,107,157,0.7)' },
-                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(255,107,157,0)' },
-                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(255,107,157,0)' }
-                        },
-                        pulseBlue: {
-                            '0%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74,159,255,0.7)' },
-                            '70%': { transform: 'scale(1.05)', boxShadow: '0 0 0 15px rgba(74,159,255,0)' },
-                            '100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(74,159,255,0)' }
-                        }
+                        wave: {'0%,100%':{transform:'scaleY(0.5)'},'50%':{transform:'scaleY(1)'}},
+                        pulse: {'0%':{transform:'scale(1)',boxShadow:'0 0 0 0 rgba(255,107,157,0.7)'},'70%':{transform:'scale(1.05)',boxShadow:'0 0 0 15px rgba(255,107,157,0)'},'100%':{transform:'scale(1)',boxShadow:'0 0 0 0 rgba(255,107,157,0)'}},
+                        pulseBlue: {'0%':{transform:'scale(1)',boxShadow:'0 0 0 0 rgba(74,159,255,0.7)'},'70%':{transform:'scale(1.05)',boxShadow:'0 0 0 15px rgba(74,159,255,0)'},'100%':{transform:'scale(1)',boxShadow:'0 0 0 0 rgba(74,159,255,0)'}}
                     },
-                    animation: {
-                        wave: 'wave 0.8s infinite ease-in-out',
-                        pulse: 'pulse 1.5s infinite',
-                        pulseBlue: 'pulseBlue 1.5s infinite'
-                    }
+                    animation: {wave:'wave 0.8s infinite',pulse:'pulse 1.5s infinite',pulseBlue:'pulseBlue 1.5s infinite'}
                 }
             }
         }
     </script>
     <style>
-        body { background: #1a1a2e; font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+        /* 全局用系统自带圆润可爱字体，无任何外部依赖，绝对不报错 */
+        body {
+            background: #1a1a2e;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Arial Rounded MT Bold", sans-serif;
+            margin: 0; padding: 0;
+        }
         .glass-bg { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .tab-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 6px); height: calc(100% - 8px); border-radius: 10px; background: rgba(255,107,157,0.15); transition: 0.3s; }
-        .pet-tabs { position: relative; display: flex; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.03); }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #FF6B9D; animation: wave 0.8s infinite; }
-        .dot.blue { background: #4A9FFF; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        .particle { position: fixed; pointer-events: none; border-radius: 50%; z-index: 10000; }
-        #video { transform: scaleX(-1); }
-        .pet-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); }
-        .result-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.3); }
+        .tab-slider { position: absolute; top:4px; left:4px; width: calc(50% - 6px); height: calc(100% - 8px); border-radius:10px; background: rgba(255,107,157,0.15); transition:.3s; }
+        .pet-tabs { position: relative; display: flex; padding:4px; border-radius:14px; background: rgba(255,255,255,0.03); }
+        .dot { width:8px; height:8px; border-radius:50%; background:#FF6B9D; animation: wave 0.8s infinite; }
+        .dot.blue { background:#4A9FFF; }
+        .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+        .particle{position:fixed;pointer-events:none;border-radius:50%;z-index:10000}
+        #video{transform:scaleX(-1)}
+        .pet-avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.2)}
+        .result-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.3)}
     </style>
 </head>
 <body class="text-white flex flex-col items-center justify-center p-4 min-h-screen">
@@ -79,7 +66,6 @@
         <h1 class="text-4xl font-bold bg-gradient-to-r from-mood-pink to-mood-blue bg-clip-text text-transparent">🐾 毛孩子心事档案馆</h1>
     </div>
     <div class="glass-bg rounded-3xl p-6">
-        <!-- 宠物切换 -->
         <div class="pet-tabs mb-6">
             <div id="slider" class="tab-slider"></div>
             <button id="catBtn" class="flex-1 py-4 text-white font-bold z-10 flex items-center justify-center gap-2">
@@ -89,18 +75,16 @@
                 <img src="./dog-icon.png" class="pet-avatar" alt="狗"> 奶萌汪
             </button>
         </div>
-        <!-- 主页 -->
         <div id="home" class="flex flex-col items-center">
             <button id="recordBtn" class="w-32 h-32 rounded-full bg-gradient-to-br from-mood-pink to-mood-purple flex items-center justify-center text-5xl shadow-lg">
                 <i class="fa fa-microphone"></i>
             </button>
-            <p class="my-4 text-gray-300" id="tip">点击录制毛孩子声音</p>
+            <p class="my-4 text-gray-300">点击录制毛孩子声音</p>
             <div class="flex gap-3 w-full">
                 <button id="cameraBtn" class="flex-1 py-3 bg-green-500 rounded-xl font-bold">📸 拍照识别</button>
                 <button id="fileBtn" class="flex-1 py-3 bg-purple-500 rounded-xl font-bold">📁 上传文件</button>
             </div>
         </div>
-        <!-- 录音中 -->
         <div id="recording" class="hidden flex-col items-center py-6">
             <div id="pulseIcon" class="w-24 h-24 rounded-full animate-pulse flex items-center justify-center text-4xl mb-6">
                 <i class="fa fa-microphone"></i>
@@ -109,12 +93,10 @@
             <p class="mt-4 text-gray-300">录音中…点击停止</p>
             <button id="stopRecord" class="mt-6 py-3 px-6 bg-red-500 rounded-xl">停止录音</button>
         </div>
-        <!-- 加载中 -->
         <div id="loading" class="hidden flex-col items-center py-8">
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             <p class="mt-4 text-gray-400">解析心声中…</p>
         </div>
-        <!-- 结果页 -->
         <div id="result" class="hidden flex-col items-center">
             <img id="resultAvatar" src="./cat-icon.png" class="result-avatar mb-4" alt="头像">
             <div class="w-full bg-bg-card p-5 rounded-2xl border border-gray-700 mb-6">
@@ -127,7 +109,6 @@
         </div>
     </div>
 </div>
-<!-- 相机层（前后摄像头） -->
 <div id="cameraLayer" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
     <video id="video" autoplay playsinline class="flex-1 w-full object-cover"></video>
     <div class="absolute bottom-10 left-0 right-0 flex justify-center gap-3 px-4">
@@ -143,94 +124,76 @@
     let camMode = "environment";
     const $ = id => document.getElementById(id);
 
-    // UI刷新
-    function refreshUI() {
-        $("slider").style.transform = pet === "cat" ? "translateX(0)" : "translateX(100%)";
-        $("catBtn").classList.toggle("text-white", pet === "cat");
-        $("catBtn").classList.toggle("text-gray-400", pet !== "cat");
-        $("dogBtn").classList.toggle("text-white", pet === "dog");
-        $("dogBtn").classList.toggle("text-gray-400", pet !== "dog");
-        $("pulseIcon").className = `w-24 h-24 rounded-full ${pet === "cat" ? "animate-pulse" : "animate-pulseBlue"} flex items-center justify-center text-4xl mb-6`;
-        document.querySelectorAll(".dot").forEach(d => d.classList.toggle("blue", pet === "dog"));
-        $("resultAvatar").src = pet === "cat" ? CAT_IMG : DOG_IMG;
+    function refreshUI(){
+        $("slider").style.transform = pet==="cat"?"translateX(0)":"translateX(100%)";
+        $("catBtn").classList.toggle("text-white",pet==="cat");
+        $("catBtn").classList.toggle("text-gray-400",pet!=="cat");
+        $("dogBtn").classList.toggle("text-white",pet==="dog");
+        $("dogBtn").classList.toggle("text-gray-400",pet!=="dog");
+        $("pulseIcon").className = `w-24 h-24 rounded-full ${pet==="cat"?"animate-pulse":"animate-pulseBlue"} flex items-center justify-center text-4xl mb-6`;
+        document.querySelectorAll(".dot").forEach(d=>d.classList.toggle("blue",pet==="dog"));
+        $("resultAvatar").src = pet==="cat"?CAT_IMG:DOG_IMG;
     }
 
-    // 粒子特效（满血生效）
-    function createParticles(x, y) {
-        const color = pet === "cat" ? "#FF6B9D" : "#4A9FFF";
-        for (let i = 0; i < 15; i++) {
-            const p = document.createElement("div");
-            p.className = "particle";
-            const size = Math.random() * 8 + 4;
-            p.style.width = size + "px";
-            p.style.height = size + "px";
-            p.style.backgroundColor = color;
-            p.style.boxShadow = `0 0 6px ${color}`;
-            p.style.left = x + "px";
-            p.style.top = y + "px";
+    function createParticles(x,y){
+        const color = pet==="cat"?"#FF6B9D":"#4A9FFF";
+        for(let i=0;i<15;i++){
+            const p=document.createElement("div");
+            p.className="particle";
+            const size=Math.random()*8+4;
+            p.style.width=size+"px";
+            p.style.height=size+"px";
+            p.style.backgroundColor=color;
+            p.style.boxShadow=`0 0 6px ${color}`;
+            p.style.left=x+"px";p.style.top=y+"px";
             document.body.appendChild(p);
-            
-            let angle = Math.random() * Math.PI * 2;
-            let speed = Math.random() * 4 + 2;
-            let vx = Math.cos(angle) * speed;
-            let vy = Math.sin(angle) * speed;
-            let opacity = 1;
-            
-            function animate() {
-                p.style.left = parseFloat(p.style.left) + vx + "px";
-                p.style.top = parseFloat(p.style.top) + vy + "px";
-                opacity -= 0.02;
-                p.style.opacity = opacity;
-                opacity > 0 ? requestAnimationFrame(animate) : p.remove();
-            }
-            requestAnimationFrame(animate);
+            let angle=Math.random()*Math.PI*2,speed=Math.random()*4+2,vx=Math.cos(angle)*speed,vy=Math.sin(angle)*speed,opacity=1;
+            !function animate(){
+                p.style.left=parseFloat(p.style.left)+vx+"px";
+                p.style.top=parseFloat(p.style.top)+vy+"px";
+                opacity-=0.02;p.style.opacity=opacity;
+                opacity>0?requestAnimationFrame(animate):p.remove();
+            }();
         }
     }
 
-    // 全局绑定所有按钮粒子
-    document.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const rect = btn.getBoundingClientRect();
-            createParticles(rect.left + rect.width/2, rect.top + rect.height/2);
-        });
+    document.querySelectorAll("button").forEach(btn=>{
+        btn.onclick=e=>{
+            const rect=btn.getBoundingClientRect();
+            createParticles(rect.left+rect.width/2,rect.top+rect.height/2);
+        }
     });
 
-    // 随机文案
-    const randomText = () => FALLBACK[pet][Math.floor(Math.random() * FALLBACK[pet].length)];
+    const randomText=()=>FALLBACK[pet][Math.floor(Math.random()*FALLBACK[pet].length)];
 
-    // 视图切换
-    const view = name => {
-        ["home", "recording", "loading", "result"].forEach(v => $(v).classList.toggle("hidden", v !== name));
-        if (name !== "cameraLayer" && camStream) camStream.getTracks().forEach(t => t.stop());
+    const view=name=>{
+        ["home","recording","loading","result"].forEach(v=>$(v).classList.toggle("hidden",v!==name));
+        if(name!=="cameraLayer"&&camStream) camStream.getTracks().forEach(t=>t.stop());
     };
 
-    // 摄像头功能
-    const openCam = async () => {
-        try {
-            camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camMode } });
-            $("video").srcObject = camStream;
+    const openCam=async()=>{
+        try{
+            camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camMode}});
+            $("video").srcObject=camStream;
             $("cameraLayer").classList.remove("hidden");
-        } catch {
-            view("loading");
-            setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600);
+        }catch{
+            view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);
         }
     };
 
-    // 事件绑定
-    $("catBtn").onclick = () => { pet = "cat"; refreshUI(); };
-    $("dogBtn").onclick = () => { pet = "dog"; refreshUI(); };
-    $("recordBtn").onclick = () => view("recording");
-    $("stopRecord").onclick = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
-    $("cameraBtn").onclick = openCam;
-    $("switchCam").onclick = () => { camMode = camMode === "user" ? "environment" : "user"; openCam(); };
-    $("takePhoto").onclick = () => { camStream.getTracks().forEach(t => t.stop()); $("cameraLayer").classList.add("hidden"); view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
-    $("closeCam").onclick = () => { camStream.getTracks().forEach(t => t.stop()); $("cameraLayer").classList.add("hidden"); view("home"); };
-    $("fileBtn").onclick = () => $("fileInput").click();
-    $("fileInput").onchange = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
-    $("backBtn").onclick = () => view("home");
-    $("retryBtn").onclick = () => { view("loading"); setTimeout(() => { view("result"); $("resultText").innerText = randomText(); }, 1600); };
+    $("catBtn").onclick=()=>{pet="cat";refreshUI()};
+    $("dogBtn").onclick=()=>{pet="dog";refreshUI()};
+    $("recordBtn").onclick=()=>view("recording");
+    $("stopRecord").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("cameraBtn").onclick=openCam;
+    $("switchCam").onclick=()=>{camMode=camMode==="user"?"environment":"user";openCam()};
+    $("takePhoto").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("closeCam").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("home")};
+    $("fileBtn").onclick=()=>$("fileInput").click();
+    $("fileInput").onchange=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("backBtn").onclick=()=>view("home");
+    $("retryBtn").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
 
-    // 初始化
     refreshUI();
 </script>
 </body>
