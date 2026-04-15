@@ -97,7 +97,7 @@
             </div>
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             <p class="mt-4 text-gray-300">录音中…点击停止</p>
-            <button id="stopRecord" class="mt-6 py-3 px-6 bg-red-500 rounded-xl">停止录音</button>
+            <button id="stopRecord" class="mt-6 py-3 px-6 bg-red-50 rounded-xl">停止录音</button>
         </div>
         <div id="loading" class="hidden flex-col items-center py-8">
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -130,6 +130,32 @@
     let camMode = "environment";
     const $ = id => document.getElementById(id);
 
+    // ================== 仅新增 粒子特效（无冲突，不影响原有功能）==================
+    function createParticles(x, y) {
+        const color = pet === "cat" ? "#FF6B9D" : "#4A9FFF";
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement("div");
+            p.className = "particle";
+            const size = Math.random() * 9 + 4;
+            p.style.cssText = `width:${size}px;height:${size}px;background:${color};box-shadow:0 0 8px ${color};left:${x}px;top:${y}px;border-radius:50%`;
+            document.body.appendChild(p);
+            let vx = Math.cos(Math.random()*Math.PI*2) * (Math.random()*5+2);
+            let vy = Math.sin(Math.random()*Math.PI*2) * (Math.random()*5+2);
+            let op = 1;
+            !function run(){
+                p.style.left = parseFloat(p.style.left)+vx+"px";
+                p.style.top = parseFloat(p.style.top)+vy+"px";
+                op -= 0.025; p.style.opacity = op;
+                op>0 ? requestAnimationFrame(run) : p.remove();
+            }();
+        }
+    }
+    // 追加绑定，不覆盖原有点击事件
+    document.querySelectorAll("button").forEach(btn=>{
+        btn.addEventListener("click",e=>createParticles(e.clientX,e.clientY));
+    });
+    // =================================================================================
+
     function refreshUI(){
         $("slider").style.transform = pet==="cat"?"translateX(0)":"translateX(100%)";
         $("catBtn").classList.toggle("text-white",pet==="cat");
@@ -141,66 +167,22 @@
         $("resultAvatar").src = pet==="cat"?CAT_IMG:DOG_IMG;
     }
 
-    // 【修复】粒子特效函数完整加回
-    function createParticles(x,y){
-        const color = pet==="cat"?"#FF6B9D":"#4A9FFF";
-        for(let i=0;i<15;i++){
-            const p=document.createElement("div");
-            p.className="particle";
-            const size=Math.random()*8+4;
-            p.style.width=size+"px";
-            p.style.height=size+"px";
-            p.style.backgroundColor=color;
-            p.style.boxShadow=`0 0 6px ${color}`;
-            p.style.left=x+"px";p.style.top=y+"px";
-            document.body.appendChild(p);
-            let angle=Math.random()*Math.PI*2,speed=Math.random()*4+2,vx=Math.cos(angle)*speed,vy=Math.sin(angle)*speed,opacity=1;
-            !function animate(){
-                p.style.left=parseFloat(p.style.left)+vx+"px";
-                p.style.top=parseFloat(p.style.top)+vy+"px";
-                opacity-=0.02;p.style.opacity=opacity;
-                opacity>0?requestAnimationFrame(animate):p.remove();
-            }();
-        }
-    }
-
-    // 【修复】所有按钮绑定粒子特效完整加回
-    document.querySelectorAll("button").forEach(btn=>{
-        btn.onclick=e=>{
-            const rect=btn.getBoundingClientRect();
-            createParticles(rect.left+rect.width/2,rect.top+rect.height/2);
-        }
-    });
-
     const randomText=()=>FALLBACK[pet][Math.floor(Math.random()*FALLBACK[pet].length)];
+    const view=name=>{["home","recording","loading","result"].forEach(v=>$(v).classList.toggle("hidden",v!==name));if(name!=="cameraLayer"&&camStream)camStream.getTracks().forEach(t=>t.stop());};
+    const openCam=async()=>{try{camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camMode}});$("video").srcObject=camStream;$("cameraLayer").classList.remove("hidden");}catch{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);}};
 
-    const view=name=>{
-        ["home","recording","loading","result"].forEach(v=>$(v).classList.toggle("hidden",v!==name));
-        if(name!=="cameraLayer"&&camStream) camStream.getTracks().forEach(t=>t.stop());
-    };
-
-    const openCam=async()=>{
-        try{
-            camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camMode}});
-            $("video").srcObject=camStream;
-            $("cameraLayer").classList.remove("hidden");
-        }catch{
-            view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);
-        }
-    };
-
-    $("catBtn").onclick=()=>{pet="cat";refreshUI()};
-    $("dogBtn").onclick=()=>{pet="dog";refreshUI()};
+    $("catBtn").onclick=()=>{pet="cat";refreshUI();};
+    $("dogBtn").onclick=()=>{pet="dog";refreshUI();};
     $("recordBtn").onclick=()=>view("recording");
-    $("stopRecord").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("stopRecord").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);};
     $("cameraBtn").onclick=openCam;
-    $("switchCam").onclick=()=>{camMode=camMode==="user"?"environment":"user";openCam()};
-    $("takePhoto").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
-    $("closeCam").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("home")};
+    $("switchCam").onclick=()=>{camMode=camMode==="user"?"environment":"user";openCam();};
+    $("takePhoto").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);};
+    $("closeCam").onclick=()=>{camStream.getTracks().forEach(t=>t.stop());$("cameraLayer").classList.add("hidden");view("home");};
     $("fileBtn").onclick=()=>$("fileInput").click();
-    $("fileInput").onchange=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("fileInput").onchange=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);};
     $("backBtn").onclick=()=>view("home");
-    $("retryBtn").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600)};
+    $("retryBtn").onclick=()=>{view("loading");setTimeout(()=>{view("result");$("resultText").innerText=randomText()},1600);};
 
     refreshUI();
 </script>
