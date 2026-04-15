@@ -5,11 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#FF6B9D">
     <meta property="og:title" content="🐾 毛孩子心事档案馆">
-    <meta property="og:description" content="一键听懂毛孩子心声">
+    <meta property="og:description" content="一键听懂猫猫狗狗心里话｜超萌宠物翻译器">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="./cat-icon.png">
+    <meta property="og:url" content="/">
+    <meta property="og:image" content="https://picsum.photos/200/200">
+    <meta property="og:image:width" content="200">
+    <meta property="og:image:height" content="200">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="🐾 毛孩子心事档案馆">
+    <meta name="twitter:description" content="宠物翻译器｜听懂毛孩子心声">
+    <meta name="description" content="超萌宠物翻译器，猫猫狗狗心里话一键解析">
     <title>🐾 毛孩子心事档案馆</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -42,7 +49,6 @@
         }
     </script>
     <style>
-        /* 全局用系统自带圆润可爱字体，无任何外部依赖，绝对不报错 */
         body {
             background: #1a1a2e;
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Arial Rounded MT Bold", sans-serif;
@@ -135,6 +141,7 @@
         $("resultAvatar").src = pet==="cat"?CAT_IMG:DOG_IMG;
     }
 
+    // 【修复】粒子特效函数完整加回
     function createParticles(x,y){
         const color = pet==="cat"?"#FF6B9D":"#4A9FFF";
         for(let i=0;i<15;i++){
@@ -157,6 +164,7 @@
         }
     }
 
+    // 【修复】所有按钮绑定粒子特效完整加回
     document.querySelectorAll("button").forEach(btn=>{
         btn.onclick=e=>{
             const rect=btn.getBoundingClientRect();
