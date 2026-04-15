@@ -97,7 +97,8 @@
             </div>
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
             <p class="mt-4 text-gray-300">录音中…点击停止</p>
-            <button id="stopRecord" class="mt-6 py-3 px-6 bg-red-50 rounded-xl">停止录音</button>
+            <!-- 已修复：停止录音按钮 不再曝光发白 -->
+            <button id="stopRecord" class="mt-6 py-3 px-6 bg-red-500 rounded-xl">停止录音</button>
         </div>
         <div id="loading" class="hidden flex-col items-center py-8">
             <div class="flex gap-1"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -130,7 +131,7 @@
     let camMode = "environment";
     const $ = id => document.getElementById(id);
 
-    // ================== 仅新增 粒子特效（无冲突，不影响原有功能）==================
+    // 粒子特效 不影响原有逻辑
     function createParticles(x, y) {
         const color = pet === "cat" ? "#FF6B9D" : "#4A9FFF";
         for (let i = 0; i < 18; i++) {
@@ -150,11 +151,9 @@
             }();
         }
     }
-    // 追加绑定，不覆盖原有点击事件
     document.querySelectorAll("button").forEach(btn=>{
         btn.addEventListener("click",e=>createParticles(e.clientX,e.clientY));
     });
-    // =================================================================================
 
     function refreshUI(){
         $("slider").style.transform = pet==="cat"?"translateX(0)":"translateX(100%)";
